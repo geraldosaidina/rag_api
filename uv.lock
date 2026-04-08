@@ -633,6 +633,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "langchain" },
     { name = "langchain-ollama" },
+    { name = "pydantic" },
 ]
 
 [package.metadata]
@@ -640,6 +641,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.131.0" },
     { name = "langchain", specifier = ">=1.2.10" },
     { name = "langchain-ollama", specifier = ">=1.0.1" },
+    { name = "pydantic", specifier = ">=2.12.5" },
 ]
 
 [[package]]
