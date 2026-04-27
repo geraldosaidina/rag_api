@@ -9,3 +9,7 @@ wheels/
 # Virtual environments
 .venv
 venv/
+.hf-cache/
+data/chroma/
+data/raw_pdfs/
+.cursor/

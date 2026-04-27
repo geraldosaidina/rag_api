@@ -33,6 +33,7 @@ class SearchResult:
     content: str
     metadata: dict[str, Any]
     score: float | None = None
+    adjusted_score: float | None = None
 
 
 class ChromaException(Exception):
@@ -206,6 +207,83 @@ class ChromaVectorStore:
         except Exception as exc:
             raise ChromaException(
                 f"Failed to run scored similarity search in Chroma collection '{self.config.collection_name}'."
+            ) from exc
+
+    def similarity_search_filtered(
+        self,
+        query: str,
+        final_k: int = 4,
+        candidate_k: int = 12,
+        metadata_filter: dict[str, Any] | None = None,
+        exclude_section_types: set[str] | None = None,
+        exclude_retrieval_qualities: set[str] | None = None,
+    ) -> list[SearchResult]:
+        """
+        Retrieve candidates first, then filter low-value chunks by metadata.
+
+        This keeps retrieval simple and explicit while preserving backward
+        compatibility with the existing search methods.
+        """
+
+        if not query or not query.strip():
+            raise ChromaException("Cannot search with an empty query.")
+        if final_k <= 0:
+            raise ChromaException("Search parameter 'final_k' must be greater than zero.")
+        if candidate_k <= 0:
+            raise ChromaException(
+                "Search parameter 'candidate_k' must be greater than zero."
+            )
+        if candidate_k < final_k:
+            raise ChromaException(
+                "Search parameter 'candidate_k' must be greater than or equal to 'final_k'."
+            )
+
+        blocked_section_types = exclude_section_types or {"references"}
+        blocked_retrieval_qualities = exclude_retrieval_qualities or {"low"}
+
+        try:
+            logger.info(
+                "Running filtered similarity search in Chroma collection '%s' with final_k=%s candidate_k=%s.",
+                self.config.collection_name,
+                final_k,
+                candidate_k,
+            )
+
+            candidates = self._client.similarity_search_with_score(
+                query=query,
+                k=candidate_k,
+                filter=metadata_filter,
+            )
+
+            rerank_candidates: list[SearchResult] = []
+            for document, score in candidates:
+                section_type = document.metadata.get("section_type", "body")
+                retrieval_quality = document.metadata.get("retrieval_quality", "normal")
+                if section_type in blocked_section_types:
+                    continue
+                if retrieval_quality in blocked_retrieval_qualities:
+                    continue
+
+                rerank_candidates.append(
+                    SearchResult(
+                        content=document.page_content,
+                        metadata=document.metadata,
+                        score=score,
+                    )
+                )
+            final_results = rerank_candidates[:final_k]
+
+            logger.info(
+                "Filtered similarity search kept %s/%s candidates in collection '%s'.",
+                len(final_results),
+                len(candidates),
+                self.config.collection_name,
+            )
+
+            return final_results
+        except Exception as exc:
+            raise ChromaException(
+                f"Failed to run filtered similarity search in Chroma collection '{self.config.collection_name}'."
             ) from exc
 
     def as_retriever(self, search_kwargs: dict[str, Any] | None = None):

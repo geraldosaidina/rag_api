@@ -23,9 +23,9 @@ class IngestionConfig:
     pdf_directory: str = "data/raw_pdfs"
     persist_directory: str = "data/chroma"
     collection_name: str = "literature_review"
-    embedding_model_name: str = "nomic-embed-text"
-    chunk_size: int = 1000
-    chunk_overlap: int = 150
+    embedding_model_name: str = "BAAI/bge-m3"
+    chunk_size: int = 400
+    chunk_overlap: int = 100
 
 
 @dataclass(frozen=True)

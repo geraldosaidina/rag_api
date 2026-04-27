@@ -2,7 +2,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from langchain_ollama import OllamaEmbeddings
+from langchain_core.embeddings import Embeddings
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +17,12 @@ class EmbeddingConfig:
     model and the embedding model have different responsibilities.
     """
 
-    model_name: str = "nomic-embed-text"
+    model_name: str = "BAAI/bge-m3"
     base_url: str | None = None
+    device: str | None = None
+    query_instruction: str = (
+        "Represent this sentence for searching relevant passages: "
+    )
 
 
 @dataclass(frozen=True)
@@ -51,21 +56,58 @@ class EmbeddingException(Exception):
     """Raised when the embedding client cannot complete an operation."""
 
 
-def build_ollama_embeddings_client(config: EmbeddingConfig) -> OllamaEmbeddings:
-    """
-    Factory function for creating the raw LangChain OllamaEmbeddings client.
+class SentenceTransformerEmbeddings(Embeddings):
+    """LangChain-compatible Embeddings adapter for sentence-transformers."""
 
-    This should be the only place where OllamaEmbeddings is instantiated.
+    def __init__(self, config: EmbeddingConfig):
+        self.config = config
+        try:
+            self._model = SentenceTransformer(
+                self.config.model_name,
+                device=self.config.device,
+            )
+        except Exception as exc:
+            raise EmbeddingException(
+                f"Failed to initialize embedding model '{self.config.model_name}'."
+            ) from exc
+
+    def embed_query(self, text: str) -> list[float]:
+        if not text or not text.strip():
+            raise EmbeddingException("Cannot embed an empty query.")
+        query_text = f"{self.config.query_instruction}{text.strip()}"
+        try:
+            vector = self._model.encode(query_text, normalize_embeddings=True)
+            return vector.tolist()
+        except Exception as exc:
+            raise EmbeddingException(
+                f"Failed to embed query with model '{self.config.model_name}'."
+            ) from exc
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        cleaned_texts = [text.strip() for text in texts if text and text.strip()]
+        if not cleaned_texts:
+            raise EmbeddingException("Cannot embed an empty document batch.")
+        try:
+            vectors = self._model.encode(cleaned_texts, normalize_embeddings=True)
+            return vectors.tolist()
+        except Exception as exc:
+            raise EmbeddingException(
+                f"Failed to embed documents with model '{self.config.model_name}'."
+            ) from exc
+
+
+def build_ollama_embeddings_client(config: EmbeddingConfig) -> Embeddings:
+    """
+    Factory function for creating the raw LangChain embeddings client.
+
+    This should be the only place where the embedding backend is instantiated.
     """
 
     try:
-        return OllamaEmbeddings(
-            model=config.model_name,
-            base_url=config.base_url,
-        )
+        return SentenceTransformerEmbeddings(config=config)
     except Exception as exc:
         raise EmbeddingException(
-            f"Failed to build Ollama embeddings client for model '{config.model_name}'."
+            f"Failed to build embeddings client for model '{config.model_name}'."
         ) from exc
 
 
@@ -73,7 +115,7 @@ class OllamaEmbeddingClient:
     """
     App-facing embedding adapter.
 
-    This class hides LangChain/Ollama details from the rest of the application.
+    This class hides embedding backend details from the rest of the application.
     Ingestion and query layers should use this class instead of using
     OllamaEmbeddings directly.
     """
@@ -165,7 +207,7 @@ class OllamaEmbeddingClient:
 
     def health_check(self) -> bool:
         """
-        Verifies that Ollama and the configured embedding model are reachable.
+        Verifies that the configured embedding model is reachable.
 
         This can later be used by a FastAPI health endpoint.
         """
@@ -176,7 +218,7 @@ class OllamaEmbeddingClient:
 
         except Exception as exc:
             logger.warning(
-                "Ollama embedding health check failed for model '%s': %s",
+                "Embedding health check failed for model '%s': %s",
                 self.config.model_name,
                 exc,
             )
