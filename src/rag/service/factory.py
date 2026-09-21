@@ -1,7 +1,8 @@
-"""One-shot construction of a reusable RAG stack for CLI and future FastAPI."""
+"""One-shot construction of a reusable RAG stack for CLI and FastAPI."""
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 
 from rag.citations.citation_validator import CitationValidator
@@ -23,12 +24,32 @@ class RAGAppConfig:
     embedding_model_name: str = "BAAI/bge-m3"
     reranker_model_name: str = "BAAI/bge-reranker-v2-m3"
     llm_model_name: str = "llama3.1:8b"
+    ollama_base_url: str | None = None
     response_language: str = "Portuguese"
     candidate_k: int = 40
     rerank_top_k: int = 8
     max_evidence_chunks: int = 5
     max_evidence_chars: int = 6000
     use_llm_query_rewrite: bool = True
+
+
+def load_rag_app_config() -> RAGAppConfig:
+    """Load RAG runtime config from environment with safe local defaults."""
+    return RAGAppConfig(
+        persist_directory=os.getenv("CHROMA_PERSIST_DIRECTORY", "data/chroma"),
+        collection_name=os.getenv("CHROMA_COLLECTION_NAME", "pfc_corpus"),
+        embedding_model_name=os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3"),
+        reranker_model_name=os.getenv("RERANKER_MODEL_NAME", "BAAI/bge-reranker-v2-m3"),
+        llm_model_name=os.getenv("OLLAMA_MODEL_NAME", "llama3.1:8b"),
+        ollama_base_url=os.getenv("OLLAMA_BASE_URL") or None,
+        response_language=os.getenv("RESPONSE_LANGUAGE", "Portuguese"),
+        candidate_k=int(os.getenv("RAG_CANDIDATE_K", "40")),
+        rerank_top_k=int(os.getenv("RAG_RERANK_TOP_K", "8")),
+        max_evidence_chunks=int(os.getenv("RAG_MAX_EVIDENCE_CHUNKS", "5")),
+        max_evidence_chars=int(os.getenv("RAG_MAX_EVIDENCE_CHARS", "6000")),
+        use_llm_query_rewrite=os.getenv("RAG_USE_LLM_REWRITE", "true").lower()
+        in {"1", "true", "yes"},
+    )
 
 
 def build_rag_service(config: RAGAppConfig | None = None) -> RAGService:
@@ -38,7 +59,7 @@ def build_rag_service(config: RAGAppConfig | None = None) -> RAGService:
     Heavyweight components (embeddings, Chroma, reranker, Ollama) are created here
     and reused across subsequent answer() calls.
     """
-    cfg = config or RAGAppConfig()
+    cfg = config or load_rag_app_config()
 
     embedding_fn = build_embeddings_client(
         EmbeddingConfig(model_name=cfg.embedding_model_name)
@@ -51,7 +72,9 @@ def build_rag_service(config: RAGAppConfig | None = None) -> RAGService:
         ),
     )
 
-    llm_client = OllamaLLMClient(LLMConfig(model_name=cfg.llm_model_name))
+    llm_client = OllamaLLMClient(
+        LLMConfig(model_name=cfg.llm_model_name, base_url=cfg.ollama_base_url)
+    )
     query_rewriter = QueryRewriter(
         llm_client=llm_client if cfg.use_llm_query_rewrite else None,
         config=QueryRewriteConfig(use_llm=cfg.use_llm_query_rewrite),

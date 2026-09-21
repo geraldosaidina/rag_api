@@ -2561,6 +2561,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "chromadb" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "langchain" },
     { name = "langchain-chroma" },
     { name = "langchain-community" },
@@ -2569,12 +2570,14 @@ dependencies = [
     { name = "pypdf" },
     { name = "rank-bm25" },
     { name = "sentence-transformers" },
+    { name = "uvicorn" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "chromadb", specifier = ">=1.5.8" },
     { name = "fastapi", specifier = ">=0.131.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "langchain", specifier = ">=1.2.10" },
     { name = "langchain-chroma", specifier = ">=1.1.0" },
     { name = "langchain-community", specifier = ">=0.4.1" },
@@ -2583,6 +2586,7 @@ requires-dist = [
     { name = "pypdf", specifier = ">=6.10.2" },
     { name = "rank-bm25", specifier = ">=0.2.2" },
     { name = "sentence-transformers", specifier = ">=5.4.1" },
+    { name = "uvicorn", specifier = ">=0.46.0" },
 ]
 
 [[package]]
