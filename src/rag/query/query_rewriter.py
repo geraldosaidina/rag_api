@@ -1,19 +1,48 @@
 import json
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from rag.llm.ollama_client import LLMException, OllamaLLMClient
+from rag.query.intent import detect_query_intent
+from rag.query.rewrite_helpers import acronym_expansions, extract_subject, intent_rule_rewrites
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_DOMAIN_CONTEXT = (
+    "The searchable collection contains academic final-course projects (PFCs) from "
+    "Mozambican higher-education institutions. Projects span arbitrary computing and "
+    "technology domains such as software engineering, artificial intelligence, finance, "
+    "cybersecurity, networking, IoT, data science, and information systems. "
+    "Use this corpus context only to disambiguate ambiguous terms; never invent a more "
+    "specific topic than the user supplied."
+)
+
+DEFAULT_DOMAIN_EXCLUSION_TERMS = (
+    "medical",
+    "psychiatric",
+    "psychiatry",
+    "clinical",
+    "schizophrenia",
+    "neurological",
+    "patient",
+    "diagnosis",
+    "médico",
+    "medico",
+    "psiquiátrico",
+    "psiquiatrico",
+)
 
 
 @dataclass(frozen=True)
 class QueryRewriteConfig:
     enabled: bool = True
     use_llm: bool = True
-    max_rewrites: int = 5
+    max_rewrites: int = 3
     include_original: bool = True
+    domain_context: str = DEFAULT_DOMAIN_CONTEXT
+    reject_off_domain_rewrites: bool = True
+    domain_exclusion_terms: tuple[str, ...] = DEFAULT_DOMAIN_EXCLUSION_TERMS
 
 
 @dataclass(frozen=True)
@@ -22,6 +51,9 @@ class QueryRewriteResult:
     intent: str
     rewritten_queries: list[str]
     used_llm: bool
+    rejected_llm_queries: list[str] = field(default_factory=list)
+    llm_error: str | None = None
+    rewrite_sources: dict[str, str] = field(default_factory=dict)
 
 
 class QueryRewriteException(Exception):
@@ -42,161 +74,161 @@ class QueryRewriter:
             raise QueryRewriteException("Cannot rewrite an empty query.")
 
         original_query = query.strip()
-        intent = self._detect_intent(original_query)
-
+        intent = detect_query_intent(original_query)
         rule_rewrites = self._rule_based_rewrites(original_query, intent)
-        rewrites: list[str] = list(rule_rewrites)
+
+        llm_rewrites: list[str] = []
+        rejected_llm_queries: list[str] = []
+        llm_error: str | None = None
         used_llm = False
 
         if self.config.enabled and self.config.use_llm and self.llm_client is not None:
-            llm_rewrites = self._llm_rewrites(original_query, intent)
-            if llm_rewrites:
-                rewrites.extend(llm_rewrites)
-                used_llm = True
+            llm_rewrites, rejected_llm_queries, llm_error = self._llm_rewrites(
+                original_query,
+                intent,
+            )
+            used_llm = bool(llm_rewrites)
 
-        deduped = self._dedupe_and_clean(rewrites)
-        if self.config.include_original:
-            deduped = self._dedupe_and_clean([original_query, *deduped])
-
-        max_rewrites = max(self.config.max_rewrites, 0)
-        if self.config.include_original:
-            final_rewrites = deduped[: max_rewrites + 1]
-        else:
-            final_rewrites = deduped[:max_rewrites]
-
-        if not final_rewrites:
-            final_rewrites = [original_query]
-
+        selected = self._select_balanced_rewrites(
+            original_query=original_query,
+            rule_rewrites=rule_rewrites,
+            llm_rewrites=llm_rewrites,
+        )
         return QueryRewriteResult(
             original_query=original_query,
             intent=intent,
-            rewritten_queries=final_rewrites,
+            rewritten_queries=selected,
             used_llm=used_llm,
+            rejected_llm_queries=rejected_llm_queries,
+            llm_error=llm_error,
+            rewrite_sources=self._assign_rewrite_sources(
+                original_query, selected, rule_rewrites, llm_rewrites
+            ),
         )
 
     def _detect_intent(self, query: str) -> str:
-        lower = query.lower()
-        components_terms = ["components", "parts", "elements", "architecture", "modules"]
-        definition_terms = [
-            "define",
-            "definition",
-            "what is",
-            "what are",
-            "meaning of",
-            "refers to",
-        ]
-        comparison_terms = ["compare", "difference", "differentiate", "versus", "vs"]
-        mechanism_terms = ["how does", "how do", "how can", "reduce", "improve", "affect"]
-
-        if any(term in lower for term in components_terms):
-            return "components"
-        if any(term in lower for term in definition_terms):
-            return "definition"
-        if any(term in lower for term in comparison_terms):
-            return "comparison"
-        if any(term in lower for term in mechanism_terms):
-            return "mechanism"
-        return "general"
+        return detect_query_intent(query)
 
     def _rule_based_rewrites(self, query: str, intent: str) -> list[str]:
-        rewrites = [query]
-        lower = query.lower()
-        rag_related = (
-            "retrieval-augmented generation" in lower
-            or "retrieval augmented generation" in lower
-            or re.search(r"\brag\b", lower) is not None
-        )
-
-        if not rag_related:
-            return self._dedupe_and_clean(rewrites)
-
-        rewrites.extend(
-            [
-                "Retrieval-Augmented Generation",
-                "RAG",
-            ]
-        )
-
-        if intent == "definition":
-            rewrites.extend(
-                [
-                    "Retrieval-Augmented Generation is defined as",
-                    "RAG refers to",
-                    "RAG combines retrieval and generation",
-                    "RAG uses external knowledge during generation",
-                    "RAG introduces a retrieval component",
-                ]
-            )
-        elif intent == "components":
-            rewrites.extend(
-                [
-                    "core components of Retrieval-Augmented Generation",
-                    "RAG components retrieval knowledge integration answer generation",
-                    "RAG framework consists of",
-                    "knowledge sourcing embedding retrieval integration generation citation",
-                ]
-            )
-        elif intent == "mechanism":
-            rewrites.extend(
-                [
-                    "RAG reduces hallucinations by grounding generation in retrieved context",
-                    "RAG improves factuality using external knowledge",
-                    "retrieved context reduces hallucinations",
-                    "RAG retrieves relevant information before generation",
-                ]
-            )
-        elif intent == "comparison":
-            rewrites.extend(
-                [
-                    "compare Retrieval-Augmented Generation with standard language models",
-                    "difference between RAG and parametric-only generation",
-                    "RAG versus non-retrieval generation approach",
-                ]
-            )
-        else:
-            rewrites.extend(
-                [
-                    "Retrieval-Augmented Generation RAG overview",
-                ]
-            )
-
+        rewrites = list(acronym_expansions(query))
+        rewrites.extend(intent_rule_rewrites(extract_subject(query), intent))
         return self._dedupe_and_clean(rewrites)
 
-    def _llm_rewrites(self, query: str, intent: str) -> list[str]:
+    def _llm_rewrites(
+        self,
+        query: str,
+        intent: str,
+    ) -> tuple[list[str], list[str], str | None]:
         if self.llm_client is None:
-            return []
+            return [], [], None
 
         system_prompt = (
-            "You rewrite user questions into search queries for a RAG retrieval system. "
-            "You do not answer questions. You do not add facts. You preserve technical "
-            "terms. Return strict JSON only."
+            "You rewrite user questions into retrieval queries for a semantic search "
+            "system over academic final-course projects (PFCs). "
+            "Do not answer the question. "
+            "Do not invent a more specific topic than the user supplied. "
+            "Preserve entities, technical terms, and acronyms. "
+            "Expand obvious acronyms only when justified by the query. "
+            "Prefer conservative, document-style phrasing. "
+            "Return strict JSON only."
         )
         user_prompt = (
-            f"Original question: {query}\n"
+            f"Original query: {query}\n"
             f"Intent: {intent}\n\n"
-            f"Create up to {self.config.max_rewrites} retrieval-optimized search queries "
-            "that are likely to match wording inside academic documents.\n\n"
+            f"Corpus context:\n{self.config.domain_context}\n\n"
+            f"Generate up to {self.config.max_rewrites} retrieval-oriented query variants.\n\n"
+            "Requirements:\n"
+            "- preserve the original subject and terminology\n"
+            "- keep Portuguese queries primarily in Portuguese and English in English\n"
+            "- do not drift into unrelated domains\n"
+            "- do not answer the question\n\n"
             'Return JSON only in this form: {"queries": ["q1", "q2"]}'
         )
 
         try:
             response = self.llm_client.invoke_messages(
-                [
-                    ("system", system_prompt),
-                    ("user", user_prompt),
-                ]
+                [("system", system_prompt), ("user", user_prompt)]
             )
-            return self._parse_llm_json_queries(response.content)
+            parsed = self._parse_llm_json_queries(response.content)
         except (LLMException, QueryRewriteException) as exc:
             logger.warning("LLM rewrite failed, falling back to rule-based rewrites: %s", exc)
-            return []
+            return [], [], str(exc)
         except Exception as exc:
             logger.warning("Unexpected LLM rewrite error, using fallback: %s", exc)
-            return []
+            return [], [], f"{type(exc).__name__}: {exc}"
+
+        accepted: list[str] = []
+        rejected: list[str] = []
+        for candidate in parsed:
+            if self._validate_llm_rewrite(query, candidate):
+                accepted.append(candidate)
+            else:
+                rejected.append(candidate)
+        return self._dedupe_and_clean(accepted), self._dedupe_and_clean(rejected), None
+
+    def _validate_llm_rewrite(self, original_query: str, rewritten_query: str) -> bool:
+        cleaned = rewritten_query.strip()
+        if not cleaned or len(self._meaningful_tokens(cleaned)) < 2:
+            return False
+        if self._normalize_key(cleaned) == self._normalize_key(original_query):
+            return False
+
+        lower = cleaned.lower()
+        original_lower = original_query.lower()
+        if self.config.reject_off_domain_rewrites:
+            for term in self.config.domain_exclusion_terms:
+                if re.search(rf"\b{re.escape(term)}\b", lower) and term not in original_lower:
+                    return False
+
+        original_tokens = set(self._meaningful_tokens(original_query))
+        rewrite_tokens = set(self._meaningful_tokens(cleaned))
+        return bool(original_tokens & rewrite_tokens)
+
+    def _select_balanced_rewrites(
+        self,
+        original_query: str,
+        rule_rewrites: list[str],
+        llm_rewrites: list[str],
+    ) -> list[str]:
+        max_rewrites = max(self.config.max_rewrites, 0)
+        selected: list[str] = []
+        if self.config.include_original:
+            selected.append(original_query)
+        selected.extend(rule_rewrites[:2])
+        selected.extend(llm_rewrites)
+        deduped = self._dedupe_and_clean(selected)
+        if self.config.include_original:
+            return deduped[: max_rewrites + 1]
+        return deduped[:max_rewrites] or [original_query]
+
+    def _assign_rewrite_sources(
+        self,
+        original_query: str,
+        selected: list[str],
+        rule_rewrites: list[str],
+        llm_rewrites: list[str],
+    ) -> dict[str, str]:
+        rule_keys = {self._normalize_key(item) for item in rule_rewrites}
+        llm_keys = {self._normalize_key(item) for item in llm_rewrites}
+        original_key = self._normalize_key(original_query)
+        sources: dict[str, str] = {}
+        for item in selected:
+            key = self._normalize_key(item)
+            if key == original_key:
+                sources[item] = "original"
+            elif key in llm_keys:
+                sources[item] = "llm"
+            else:
+                sources[item] = "rule"
+        return sources
 
     def _parse_llm_json_queries(self, raw_content: str) -> list[str]:
+        content = raw_content.strip()
+        fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", content, flags=re.DOTALL)
+        if fenced:
+            content = fenced.group(1)
         try:
-            parsed = json.loads(raw_content.strip())
+            parsed = json.loads(content)
         except json.JSONDecodeError as exc:
             raise QueryRewriteException("LLM rewrite output is not valid JSON.") from exc
 
@@ -204,15 +236,22 @@ class QueryRewriter:
         if not isinstance(queries, list):
             raise QueryRewriteException("LLM rewrite JSON must include a 'queries' list.")
 
-        cleaned: list[str] = []
-        for item in queries:
-            if isinstance(item, str):
-                stripped = item.strip()
-                if stripped:
-                    cleaned.append(stripped)
+        cleaned = [item.strip() for item in queries if isinstance(item, str) and item.strip()]
+        return self._dedupe_and_clean(cleaned)[: self.config.max_rewrites]
 
-        deduped = self._dedupe_and_clean(cleaned)
-        return deduped[: self.config.max_rewrites]
+    def _meaningful_tokens(self, text: str) -> list[str]:
+        stopwords = {
+            "the", "a", "an", "of", "in", "on", "for", "to", "and", "or", "is", "are",
+            "was", "were", "does", "do", "how", "what", "by", "with", "as", "from",
+            "de", "da", "do", "das", "dos", "um", "uma", "uns", "umas", "o", "os", "as",
+            "que", "em", "no", "na", "nos", "nas", "para", "por", "com", "como",
+            "são", "sao", "é", "e", "sobre", "quais", "qual",
+        }
+        tokens = re.findall(r"[a-z0-9à-ÿ]+", text.lower().replace("-", " "))
+        return [token for token in tokens if token not in stopwords and len(token) > 1]
+
+    def _normalize_key(self, value: str) -> str:
+        return re.sub(r"\s+", " ", value.strip()).lower()
 
     def _dedupe_and_clean(self, values: list[str]) -> list[str]:
         seen: set[str] = set()
@@ -221,9 +260,10 @@ class QueryRewriter:
             stripped = value.strip()
             if not stripped:
                 continue
-            key = re.sub(r"\s+", " ", stripped).lower()
+            key = self._normalize_key(stripped)
             if key in seen:
                 continue
             seen.add(key)
             result.append(stripped)
         return result
+

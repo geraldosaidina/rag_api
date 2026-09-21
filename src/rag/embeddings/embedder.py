@@ -11,14 +11,12 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class EmbeddingConfig:
     """
-    Configuration for the local Ollama embedding model.
+    Configuration for the local SentenceTransformer embedding model.
 
-    This is intentionally separate from the LLM config because the generation
-    model and the embedding model have different responsibilities.
+    Separate from LLM config because generation and embedding have different roles.
     """
 
     model_name: str = "BAAI/bge-m3"
-    base_url: str | None = None
     device: str | None = None
     query_instruction: str = (
         "Represent this sentence for searching relevant passages: "
@@ -96,9 +94,9 @@ class SentenceTransformerEmbeddings(Embeddings):
             ) from exc
 
 
-def build_ollama_embeddings_client(config: EmbeddingConfig) -> Embeddings:
+def build_embeddings_client(config: EmbeddingConfig) -> Embeddings:
     """
-    Factory function for creating the raw LangChain embeddings client.
+    Factory for the LangChain-compatible embeddings backend.
 
     This should be the only place where the embedding backend is instantiated.
     """
@@ -111,18 +109,20 @@ def build_ollama_embeddings_client(config: EmbeddingConfig) -> Embeddings:
         ) from exc
 
 
-class OllamaEmbeddingClient:
-    """
-    App-facing embedding adapter.
+# Compatibility alias for earlier experimental naming.
+build_ollama_embeddings_client = build_embeddings_client
 
-    This class hides embedding backend details from the rest of the application.
-    Ingestion and query layers should use this class instead of using
-    OllamaEmbeddings directly.
+
+class EmbeddingClient:
+    """
+    App-facing embedding adapter over sentence-transformers / BGE-M3.
+
+    Ingestion and query layers should use this class instead of the raw backend.
     """
 
     def __init__(self, config: EmbeddingConfig | None = None):
         self.config = config or EmbeddingConfig()
-        self._client = build_ollama_embeddings_client(self.config)
+        self._client = build_embeddings_client(self.config)
 
     def embed_query(self, text: str) -> EmbeddingResponse:
         """
@@ -223,3 +223,7 @@ class OllamaEmbeddingClient:
                 exc,
             )
             return False
+
+# Compatibility alias for earlier experimental naming.
+OllamaEmbeddingClient = EmbeddingClient
+

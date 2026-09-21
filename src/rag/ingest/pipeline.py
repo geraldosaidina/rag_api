@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from langchain_core.documents import Document
 
-from rag.embeddings.embedder import EmbeddingConfig, build_ollama_embeddings_client
+from rag.embeddings.embedder import EmbeddingConfig, build_embeddings_client
 from rag.ingest.chunker import ChunkingConfig, DocumentChunker
 from rag.ingest.pdf_loader import PDFLoader
 from rag.vector.chroma_store import ChromaConfig, ChromaVectorStore
@@ -22,7 +22,7 @@ class IngestionConfig:
 
     pdf_directory: str = "data/raw_pdfs"
     persist_directory: str = "data/chroma"
-    collection_name: str = "literature_review"
+    collection_name: str = "pfc_corpus"
     embedding_model_name: str = "BAAI/bge-m3"
     chunk_size: int = 400
     chunk_overlap: int = 100
@@ -73,7 +73,7 @@ class IngestionPipeline:
             )
         )
 
-        self.embedding_function = build_ollama_embeddings_client(
+        self.embedding_function = build_embeddings_client(
             EmbeddingConfig(
                 model_name=self.config.embedding_model_name,
             )

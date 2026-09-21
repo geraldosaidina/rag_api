@@ -60,7 +60,8 @@ def build_ollama_chat_client(config: LLMConfig) -> ChatOllama:
         )
     except Exception as exc:
         raise LLMException(
-            f"Failed to build Ollama chat client for model '{config.model_name}'."
+            f"Failed to build Ollama chat client for model '{config.model_name}'. "
+            f"Root cause: {type(exc).__name__}: {exc}"
         ) from exc
 
 
@@ -109,7 +110,8 @@ class OllamaLLMClient:
             raise
         except Exception as exc:
             raise LLMException(
-                f"Failed to invoke Ollama model '{self.config.model_name}'."
+                f"Failed to invoke Ollama model '{self.config.model_name}'. "
+                f"Root cause: {type(exc).__name__}: {exc}"
             ) from exc
 
     def invoke_prompt(self, system_prompt: str, user_prompt: str) -> LLMResponse:

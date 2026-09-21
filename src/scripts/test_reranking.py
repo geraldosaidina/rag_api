@@ -7,9 +7,9 @@ PROJECT_SRC = Path(__file__).resolve().parents[1]
 if str(PROJECT_SRC) not in sys.path:
     sys.path.insert(0, str(PROJECT_SRC))
 
-from rag.embeddings.embedder import EmbeddingConfig, build_ollama_embeddings_client
+from rag.embeddings.embedder import EmbeddingConfig, build_embeddings_client
 from rag.llm.ollama_client import OllamaLLMClient
-from rag.query.query_rewriter import QueryRewriter
+from rag.query.query_rewriter import QueryRewriteConfig, QueryRewriter
 from rag.retrieval.hybrid_retriever import HybridRetriever
 from rag.rerank.reranker import CrossEncoderReranker, RerankerConfig
 from rag.vector.chroma_store import ChromaConfig, ChromaVectorStore, SearchResult
@@ -38,6 +38,7 @@ def _print_candidate_results(title: str, results: list[SearchResult]) -> None:
             f"combined_score={_format_optional_score(result.metadata.get('combined_score'))} | "
             f"retrieval_intent={result.metadata.get('retrieval_intent')} | "
             f"matched_query={result.metadata.get('matched_query')} | "
+            f"rewrite_source={result.metadata.get('rewrite_source')} | "
             f"content_type={result.metadata.get('content_type', 'normal')} | "
             f"source={result.metadata.get('source')} | "
             f"page={result.metadata.get('page')} | "
@@ -55,23 +56,32 @@ def main() -> int:
     embedding_config = EmbeddingConfig(model_name="BAAI/bge-m3")
     reranker_config = RerankerConfig(model_name="BAAI/bge-reranker-v2-m3")
 
-    embedding_fn = build_ollama_embeddings_client(embedding_config)
+    embedding_fn = build_embeddings_client(embedding_config)
     vector_store = ChromaVectorStore(
         embedding_function=embedding_fn,
         config=ChromaConfig(
             persist_directory="data/chroma",
-            collection_name="literature_review",
+            collection_name="pfc_corpus",
         ),
     )
+    # Prefer LLM rewriting when Ollama is available; fallback remains deterministic.
+    try:
+        query_rewriter = QueryRewriter(
+            llm_client=OllamaLLMClient(),
+            config=QueryRewriteConfig(use_llm=True),
+        )
+    except Exception as exc:
+        print(f"Ollama unavailable ({exc}); using rule-based rewriting only.")
+        query_rewriter = QueryRewriter(config=QueryRewriteConfig(use_llm=False))
     hybrid_retriever = HybridRetriever(
         vector_store=vector_store,
         embedding_function=embedding_fn,
-        query_rewriter=QueryRewriter(llm_client=OllamaLLMClient()),
+        query_rewriter=query_rewriter,
     )
     reranker = CrossEncoderReranker(reranker_config)
 
     print(
-        "If you changed embedding_model_name or chunking settings "
+        "If you changed embedding_model_name, collection_name, or chunking settings "
         "(chunk_size/chunk_overlap), delete data/chroma and re-run ingestion "
         "before testing retrieval."
     )
@@ -87,6 +97,7 @@ def main() -> int:
         "What are hallucinations?",
         "What are the core components of RAG?",
         "How does RAG reduce hallucinations?",
+        "Que PFCs abordam segurança de aplicações web?",
     ]
 
     for query in queries:
@@ -94,19 +105,18 @@ def main() -> int:
         print(f"QUERY: {query}")
         print(f"candidate_k={candidate_k} final_k={final_k}")
 
+        rewrite_result = query_rewriter.rewrite(query)
+        print(f"original_query={rewrite_result.original_query}")
+        print(f"intent={rewrite_result.intent}")
+        print(f"used_llm_query_rewrite={rewrite_result.used_llm}")
+        print(f"rewritten_queries={rewrite_result.rewritten_queries}")
+        print(f"rejected_llm_queries={rewrite_result.rejected_llm_queries}")
+        print(f"llm_error={rewrite_result.llm_error}")
+
         filtered_candidates = hybrid_retriever.retrieve(
             query=query,
             candidate_k=candidate_k,
         )
-        rewritten_queries = filtered_candidates[0].metadata.get("rewritten_queries", [query]) if filtered_candidates else [query]
-        used_llm_rewrite = bool(filtered_candidates[0].metadata.get("used_llm_query_rewrite", False)) if filtered_candidates else False
-        print(f"rewritten_queries={rewritten_queries}")
-        print(f"used_llm_query_rewrite={used_llm_rewrite}")
-        filtered_candidates = [
-            result
-            for result in filtered_candidates
-            if result.metadata.get("source") == "2503.10677v2.pdf"
-        ]
 
         _print_candidate_results(
             "FILTERED CANDIDATES (BEFORE RERANKING)",
@@ -128,19 +138,15 @@ def main() -> int:
         for rank, result in enumerate(reranked, 1):
             print(
                 f"{rank}. original_score={_format_optional_score(result.original_score)} | "
-                f"dense_score={_format_optional_score(result.metadata.get('dense_score'))} | "
-                f"bm25_score={_format_optional_score(result.metadata.get('bm25_score'))} | "
-                f"combined_score={_format_optional_score(result.metadata.get('combined_score'))} | "
                 f"rerank_score={result.rerank_score:.6f} | "
                 f"answerability_score={result.answerability_score:.6f} | "
                 f"final_score={result.final_score:.6f} | "
                 f"matched_query={result.metadata.get('matched_query')} | "
+                f"rewrite_source={result.metadata.get('rewrite_source')} | "
                 f"content_type={result.metadata.get('content_type', 'normal')} | "
                 f"source={result.metadata.get('source')} | "
                 f"page={result.metadata.get('page')} | "
                 f"chunk_index={result.metadata.get('chunk_index')} | "
-                f"section_type={result.metadata.get('section_type', 'body')} | "
-                f"retrieval_quality={result.metadata.get('retrieval_quality', 'normal')} | "
                 f"chunk_id={result.metadata.get('chunk_id')}"
             )
             print(f"   {_preview(result.content)}\n")

@@ -12,9 +12,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class ChunkingConfig:
-    """
-    Configuration for splitting extracted PDF text into smaller chunks.
-    """
+    """Configuration for splitting extracted PDF text into smaller chunks."""
 
     chunk_size: int = 400
     chunk_overlap: int = 100
@@ -25,19 +23,10 @@ class ChunkingException(Exception):
 
 
 class DocumentChunker:
-    """
-    Responsible for converting page-level Documents into smaller chunk-level Documents.
-
-    This class does NOT:
-    - load PDFs
-    - create embeddings
-    - store documents in Chroma
-    - call the LLM
-    """
+    """Converts page-level Documents into smaller chunk-level Documents."""
 
     def __init__(self, config: ChunkingConfig | None = None):
         self.config = config or ChunkingConfig()
-
         self._splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.config.chunk_size,
             chunk_overlap=self.config.chunk_overlap,
@@ -45,13 +34,8 @@ class DocumentChunker:
         )
 
     def chunk_documents(self, documents: list[Document]) -> list[Document]:
-        """
-        Split many page-level Documents into chunk-level Documents.
-        """
-
         if not documents:
             raise ChunkingException("Cannot chunk an empty document list.")
-
         try:
             logger.info(
                 "Chunking %s documents with chunk_size=%s and chunk_overlap=%s.",
@@ -59,40 +43,24 @@ class DocumentChunker:
                 self.config.chunk_size,
                 self.config.chunk_overlap,
             )
-
             chunked_documents: list[Document] = []
-
             for document in documents:
-                chunks = self._split_document(document)
-                chunked_documents.extend(chunks)
-
+                chunked_documents.extend(self._split_document(document))
             logger.info("Created %s total chunks.", len(chunked_documents))
-
             return chunked_documents
-
         except ChunkingException:
             raise
         except Exception as exc:
             raise ChunkingException("Failed to chunk documents.") from exc
 
     def _split_document(self, document: Document) -> list[Document]:
-        """
-        Split one page-level Document into multiple chunk-level Documents.
-        """
-
         if not document.page_content or not document.page_content.strip():
             return []
-
-        split_texts = self._splitter.split_text(document.page_content)
-
         chunks: list[Document] = []
-
-        for chunk_index, text in enumerate(split_texts):
+        for chunk_index, text in enumerate(self._splitter.split_text(document.page_content)):
             cleaned_text = self._clean_text(text)
-
             if not cleaned_text:
                 continue
-
             metadata = dict(document.metadata)
             metadata["source"] = metadata.get("source", "unknown-source")
             metadata["page"] = metadata.get("page", "unknown-page")
@@ -104,47 +72,27 @@ class DocumentChunker:
                 metadata["section_type"],
                 metadata["content_type"],
             )
-            metadata["chunk_id"] = self._build_chunk_id(
-                content=cleaned_text,
-                metadata=metadata,
-            )
-
-            chunks.append(
-                Document(
-                    page_content=cleaned_text,
-                    metadata=metadata,
-                )
-            )
-
+            metadata["chunk_id"] = self._build_chunk_id(cleaned_text, metadata)
+            chunks.append(Document(page_content=cleaned_text, metadata=metadata))
         return chunks
 
     def _clean_text(self, text: str) -> str:
-        """
-        Remove common PDF extraction artifacts while keeping readable content.
-        """
-
         cleaned = text
-
-        known_noise_patterns = [
+        # Generic ACM/conference template noise commonly left by PDF extractors.
+        for pattern in (
             r"conference acronym[^.!\n]{0,120}",
             r"\bPriprint\b",
             r"[‘']?xx,\s*june\s*\d{2}\s*[–-]\s*\d{2},\s*\d{4},\s*woodstock,\s*ny",
-        ]
-        for pattern in known_noise_patterns:
+        ):
             cleaned = re.sub(pattern, " ", cleaned, flags=re.IGNORECASE)
 
         cleaned = re.sub(r"(?:[✓✗]\s*){5,}", " ", cleaned)
-        cleaned = re.sub(
-            r"^\s*A Survey on Knowledge-Oriented Retrieval-Augmented Generation\b[:\s\-–—]*",
-            "",
-            cleaned,
-            flags=re.IGNORECASE,
-        )
-
         leading_window = cleaned[:280]
         table_symbol_count = len(re.findall(r"[✓✗]", leading_window))
         citation_count = len(re.findall(r"\[\d{1,4}\]", leading_window))
-        compact_token_count = len(re.findall(r"\b(?:\d{4}|[A-Z][a-z]{1,8}|✓|✗)\b", leading_window))
+        compact_token_count = len(
+            re.findall(r"\b(?:\d{4}|[A-Z][a-z]{1,8}|✓|✗)\b", leading_window)
+        )
         if (
             table_symbol_count >= 4
             or citation_count >= 3
@@ -157,16 +105,13 @@ class DocumentChunker:
         lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
         deduped_lines: list[str] = []
         for line in lines:
-            lower = line.lower()
-            if deduped_lines and lower == deduped_lines[-1].lower():
+            if deduped_lines and line.lower() == deduped_lines[-1].lower():
                 continue
             deduped_lines.append(line)
-
         cleaned = " ".join(deduped_lines)
         cleaned = re.sub(r"\s+", " ", cleaned)
         cleaned = re.sub(r"^[\s\-\|:;,.]+", "", cleaned)
         cleaned = re.sub(r"[\s\-\|:;,.]+$", "", cleaned)
-
         return cleaned.strip()
 
     def _classify_content_type(self, text: str, metadata: dict[str, Any]) -> str:

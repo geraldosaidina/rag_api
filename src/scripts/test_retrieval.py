@@ -7,15 +7,15 @@ PROJECT_SRC = Path(__file__).resolve().parents[1]
 if str(PROJECT_SRC) not in sys.path:
     sys.path.insert(0, str(PROJECT_SRC))
 
-from rag.embeddings.embedder import EmbeddingConfig, build_ollama_embeddings_client
+from rag.embeddings.embedder import EmbeddingConfig, build_embeddings_client
 from rag.vector.chroma_store import ChromaConfig, ChromaVectorStore
 
 
 def main() -> int:
     # IMPORTANT:
     # If your collection was ingested before section_type/retrieval_quality
-    # metadata existed, clear/rebuild data/chroma (or use another persist
-    # directory) before validating filtered retrieval behavior.
+    # metadata existed, or if the collection name changed, clear/rebuild
+    # data/chroma before validating filtered retrieval behavior.
     #
     # Validation runbook:
     # 1) Run: uv run python src/scripts/ingest.py
@@ -23,7 +23,7 @@ def main() -> int:
     # 3) Compare RAW RESULTS vs FILTERED RESULTS for the same query
     # 4) Confirm FILTERED RESULTS remove references/low-quality chunks
     #    and prioritize body chunks for answer-bearing passages.
-    embedding_fn = build_ollama_embeddings_client(
+    embedding_fn = build_embeddings_client(
         EmbeddingConfig(model_name="BAAI/bge-m3")
     )
 
@@ -31,7 +31,7 @@ def main() -> int:
         embedding_function=embedding_fn,
         config=ChromaConfig(
             persist_directory="data/chroma",
-            collection_name="literature_review",
+            collection_name="pfc_corpus",
         ),
     )
 
@@ -40,6 +40,7 @@ def main() -> int:
     queries = [
         "How does the author define Retrieval-Augmented Generation?",
         "What are hallucinations?",
+        "Que metodologias foram utilizadas nos projectos?",
     ]
 
     for query in queries:
@@ -51,7 +52,6 @@ def main() -> int:
         raw_results = store.similarity_search_with_scores(
             query=query,
             k=4,
-            metadata_filter={"source": "2503.10677v2.pdf"},
         )
 
         for index, result in enumerate(raw_results, 1):
@@ -76,7 +76,6 @@ def main() -> int:
             query=query,
             final_k=4,
             candidate_k=12,
-            metadata_filter={"source": "2503.10677v2.pdf"},
         )
 
         for index, result in enumerate(filtered_results, 1):
