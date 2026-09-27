@@ -7,11 +7,16 @@ import time
 from dataclasses import dataclass, replace
 
 from rag.citations.citation_validator import CitationValidator
+from rag.documents.models import PfcRecord
 from rag.documents.store import PfcStore
-from rag.context.evidence_assembler import EvidenceAssembler, EvidenceAssemblerConfig
+from rag.context.evidence_assembler import (
+    EvidenceAssembler,
+    EvidenceAssemblerConfig,
+    EvidenceDocument,
+)
 from rag.generation.answer_generator import AnswerGenerator, GenerationException
 from rag.retrieval.hybrid_retriever import HybridRetriever, HybridRetrieverException
-from rag.rerank.reranker import CrossEncoderReranker, RerankerException
+from rag.rerank.reranker import CrossEncoderReranker, RerankResult, RerankerException
 from rag.service.models import AnswerDiagnostics, AnswerResult, SourceReference
 
 logger = logging.getLogger(__name__)
@@ -110,7 +115,11 @@ class RAGService:
                 f"Unexpected reranking failure: {type(exc).__name__}: {exc}"
             ) from exc
 
-        evidence = self.evidence_assembler.assemble(ranked)
+        records = self._catalogue_records(ranked)
+        evidence = self.evidence_assembler.assemble(
+            ranked,
+            documents=_evidence_documents(records),
+        )
         if evidence.is_empty:
             return self._insufficient_result(
                 question=question,
@@ -131,7 +140,7 @@ class RAGService:
             raise RAGServiceException(f"Generation failed: {exc}") from exc
 
         citation_result = self.citation_validator.validate(raw_answer, evidence)
-        sources = self._enrich_sources(citation_result.sources)
+        sources = _enrich_sources(citation_result.sources, records)
         total_ms = (time.perf_counter() - started) * 1000.0
         return AnswerResult(
             question=question,
@@ -145,42 +154,31 @@ class RAGService:
                 retrieval_duration_ms=retrieval_ms,
                 rerank_duration_ms=rerank_ms,
                 generation_duration_ms=generation_ms,
+                # False means evidence was supplied to generation. It does not
+                # mean every premise in the question was supported.
                 insufficient_evidence=False,
                 invalid_citations_removed=citation_result.invalid_citations,
             ),
         )
 
-    def _enrich_sources(self, sources: tuple[SourceReference, ...]) -> tuple[SourceReference, ...]:
-        """Attach catalogue metadata for the distinct PFCs cited in one answer."""
-        if self.catalogue is None or not sources:
-            return sources
+    def _catalogue_records(self, ranked: list[RerankResult]) -> dict[str, PfcRecord]:
+        """One lookup for the distinct PFCs represented in the reranked candidates."""
+        if self.catalogue is None:
+            return {}
         pfc_ids: list[str] = []
         seen: set[str] = set()
-        for source in sources:
-            if source.pfc_id and source.pfc_id not in seen:
-                seen.add(source.pfc_id)
-                pfc_ids.append(source.pfc_id)
-        if not pfc_ids:
-            return sources
-        records = {
-            record.id: record for record in self.catalogue.find_by_ids(pfc_ids)
-        }
-        enriched = []
-        for source in sources:
-            record = records.get(source.pfc_id or "")
-            if record is None:
-                enriched.append(source)
+        for result in ranked:
+            raw_id = (result.metadata or {}).get("pfc_id")
+            if not raw_id:
                 continue
-            enriched.append(
-                replace(
-                    source,
-                    pfc_id=record.id,
-                    title=record.title,
-                    authors=record.authors,
-                    year=record.year,
-                )
-            )
-        return tuple(enriched)
+            pfc_id = str(raw_id)
+            if pfc_id in seen:
+                continue
+            seen.add(pfc_id)
+            pfc_ids.append(pfc_id)
+        if not pfc_ids:
+            return {}
+        return {record.id: record for record in self.catalogue.find_by_ids(pfc_ids)}
 
     def _insufficient_result(
         self,
@@ -210,3 +208,45 @@ class RAGService:
                 insufficient_evidence=True,
             ),
         )
+
+
+def _evidence_documents(records: dict[str, PfcRecord]) -> dict[str, EvidenceDocument] | None:
+    if not records:
+        return None
+    return {
+        pfc_id: EvidenceDocument(
+            pfc_id=record.id,
+            title=record.title,
+            authors=record.authors,
+            year=record.year,
+            institution=record.institution,
+            course=record.course,
+            department=record.department,
+        )
+        for pfc_id, record in records.items()
+    }
+
+
+def _enrich_sources(
+    sources: tuple[SourceReference, ...],
+    records: dict[str, PfcRecord],
+) -> tuple[SourceReference, ...]:
+    """Reuse the pre-generation catalogue records for cited sources."""
+    if not sources or not records:
+        return sources
+    enriched = []
+    for source in sources:
+        record = records.get(source.pfc_id or "")
+        if record is None:
+            enriched.append(source)
+            continue
+        enriched.append(
+            replace(
+                source,
+                pfc_id=record.id,
+                title=record.title,
+                authors=record.authors,
+                year=record.year,
+            )
+        )
+    return tuple(enriched)
