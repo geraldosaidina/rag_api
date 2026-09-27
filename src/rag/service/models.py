@@ -16,6 +16,10 @@ class SourceReference:
     chunk_index: int | str | None
     chunk_id: str | None
     excerpt: str | None = None
+    pfc_id: str | None = None
+    title: str | None = None
+    authors: tuple[str, ...] = ()
+    year: int | None = None
 
 
 @dataclass(frozen=True)

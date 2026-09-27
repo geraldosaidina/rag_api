@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from rag.citations.citation_validator import CitationValidator
+from rag.documents.store import PfcStore
 from rag.context.evidence_assembler import EvidenceAssembler, EvidenceAssemblerConfig
 from rag.generation.answer_generator import AnswerGenerator, GenerationException
 from rag.retrieval.hybrid_retriever import HybridRetriever, HybridRetrieverException
 from rag.rerank.reranker import CrossEncoderReranker, RerankerException
-from rag.service.models import AnswerDiagnostics, AnswerResult
+from rag.service.models import AnswerDiagnostics, AnswerResult, SourceReference
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class RAGService:
         answer_generator: AnswerGenerator,
         citation_validator: CitationValidator | None = None,
         config: RAGServiceConfig | None = None,
+        catalogue: PfcStore | None = None,
     ):
         self.retriever = retriever
         self.reranker = reranker
@@ -51,6 +53,7 @@ class RAGService:
         self.answer_generator = answer_generator
         self.citation_validator = citation_validator or CitationValidator()
         self.config = config or RAGServiceConfig()
+        self.catalogue = catalogue
 
     def answer(self, question: str) -> AnswerResult:
         if not question or not question.strip():
@@ -128,11 +131,12 @@ class RAGService:
             raise RAGServiceException(f"Generation failed: {exc}") from exc
 
         citation_result = self.citation_validator.validate(raw_answer, evidence)
+        sources = self._enrich_sources(citation_result.sources)
         total_ms = (time.perf_counter() - started) * 1000.0
         return AnswerResult(
             question=question,
             answer=citation_result.cleaned_answer,
-            sources=citation_result.sources,
+            sources=sources,
             diagnostics=AnswerDiagnostics(
                 total_duration_ms=total_ms,
                 retrieval_candidate_count=len(candidates),
@@ -145,6 +149,38 @@ class RAGService:
                 invalid_citations_removed=citation_result.invalid_citations,
             ),
         )
+
+    def _enrich_sources(self, sources: tuple[SourceReference, ...]) -> tuple[SourceReference, ...]:
+        """Attach catalogue metadata for the distinct PFCs cited in one answer."""
+        if self.catalogue is None or not sources:
+            return sources
+        pfc_ids: list[str] = []
+        seen: set[str] = set()
+        for source in sources:
+            if source.pfc_id and source.pfc_id not in seen:
+                seen.add(source.pfc_id)
+                pfc_ids.append(source.pfc_id)
+        if not pfc_ids:
+            return sources
+        records = {
+            record.id: record for record in self.catalogue.find_by_ids(pfc_ids)
+        }
+        enriched = []
+        for source in sources:
+            record = records.get(source.pfc_id or "")
+            if record is None:
+                enriched.append(source)
+                continue
+            enriched.append(
+                replace(
+                    source,
+                    pfc_id=record.id,
+                    title=record.title,
+                    authors=record.authors,
+                    year=record.year,
+                )
+            )
+        return tuple(enriched)
 
     def _insufficient_result(
         self,

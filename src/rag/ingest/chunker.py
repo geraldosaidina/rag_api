@@ -177,6 +177,9 @@ class DocumentChunker:
             "references" in lower_text[:200]
             or "bibliography" in lower_text[:200]
             or "works cited" in lower_text[:200]
+            or "referências" in lower_text[:200]
+            or "referencias" in lower_text[:200]
+            or "bibliografia" in lower_text[:200]
             or "references" in page_indicator
             or "bibliography" in page_indicator
         )
@@ -259,13 +262,13 @@ class DocumentChunker:
 
     def _build_chunk_id(self, content: str, metadata: dict[str, Any]) -> str:
         """
-        Build a stable chunk ID from source, page, chunk index, and content hash.
+        Build a stable chunk ID from PFC id, page, chunk index, and content hash.
         """
 
-        source = metadata.get("source", "unknown-source")
+        document_id = metadata.get("pfc_id") or metadata.get("source", "unknown-source")
         page = metadata.get("page", "unknown-page")
         chunk_index = metadata.get("chunk_index", "unknown-chunk")
 
         content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()[:12]
 
-        return f"{source}:page-{page}:chunk-{chunk_index}:{content_hash}"
+        return f"{document_id}:page-{page}:chunk-{chunk_index}:{content_hash}"

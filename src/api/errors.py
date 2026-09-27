@@ -67,7 +67,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=422,
             content=_error_body(
                 "validation_error",
-                "Invalid request. Provide a non-empty question string.",
+                "Invalid request.",
             ),
         )
 

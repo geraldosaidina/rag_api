@@ -13,6 +13,8 @@ from rag.llm.ollama_client import LLMConfig, OllamaLLMClient
 from rag.query.query_rewriter import QueryRewriteConfig, QueryRewriter
 from rag.retrieval.hybrid_retriever import HybridRetriever
 from rag.rerank.reranker import CrossEncoderReranker, RerankerConfig
+from rag.documents.ingestion import PfcIngestionService, recover_processing_documents
+from rag.documents.store import PfcStore
 from rag.service.rag_service import RAGService, RAGServiceConfig
 from rag.vector.chroma_store import ChromaConfig, ChromaVectorStore
 
@@ -31,6 +33,9 @@ class RAGAppConfig:
     max_evidence_chunks: int = 5
     max_evidence_chars: int = 6000
     use_llm_query_rewrite: bool = True
+    pfc_db_path: str = "data/pfc.db"
+    pfc_corpus_directory: str = "data/corpus"
+    pfc_samples_directory: str = "data/pfc_samples"
 
 
 def load_rag_app_config() -> RAGAppConfig:
@@ -49,6 +54,9 @@ def load_rag_app_config() -> RAGAppConfig:
         max_evidence_chars=int(os.getenv("RAG_MAX_EVIDENCE_CHARS", "6000")),
         use_llm_query_rewrite=os.getenv("RAG_USE_LLM_REWRITE", "true").lower()
         in {"1", "true", "yes"},
+        pfc_db_path=os.getenv("PFC_DB_PATH", "data/pfc.db"),
+        pfc_corpus_directory=os.getenv("PFC_CORPUS_DIRECTORY", "data/corpus"),
+        pfc_samples_directory=os.getenv("PFC_SAMPLES_DIRECTORY", "data/pfc_samples"),
     )
 
 
@@ -98,16 +106,45 @@ def build_rag_service(config: RAGAppConfig | None = None) -> RAGService:
         config=GenerationConfig(response_language=cfg.response_language),
     )
 
+    catalogue = PfcStore(cfg.pfc_db_path)
+    catalogue.initialize()
+
     return RAGService(
         retriever=retriever,
         reranker=reranker,
         evidence_assembler=evidence_assembler,
         answer_generator=answer_generator,
         citation_validator=CitationValidator(),
+        catalogue=catalogue,
         config=RAGServiceConfig(
             candidate_k=cfg.candidate_k,
             rerank_top_k=cfg.rerank_top_k,
             max_evidence_chunks=cfg.max_evidence_chunks,
             max_evidence_chars=cfg.max_evidence_chars,
         ),
+    )
+
+
+def build_pfc_ingestion_service(
+    config: RAGAppConfig | None = None,
+) -> PfcIngestionService:
+    """Build catalogue + Chroma ingestion without loading the reranker or LLM."""
+    cfg = config or load_rag_app_config()
+    embedding_fn = build_embeddings_client(
+        EmbeddingConfig(model_name=cfg.embedding_model_name)
+    )
+    vector_store = ChromaVectorStore(
+        embedding_function=embedding_fn,
+        config=ChromaConfig(
+            persist_directory=cfg.persist_directory,
+            collection_name=cfg.collection_name,
+        ),
+    )
+    catalogue = PfcStore(cfg.pfc_db_path)
+    catalogue.initialize()
+    recover_processing_documents(catalogue, vector_store)
+    return PfcIngestionService(
+        catalogue=catalogue,
+        vector_store=vector_store,
+        corpus_directory=cfg.pfc_corpus_directory,
     )

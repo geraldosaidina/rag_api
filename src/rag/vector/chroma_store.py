@@ -201,6 +201,33 @@ class ChromaVectorStore:
                 f"Failed to count documents in Chroma collection '{self.config.collection_name}'."
             ) from exc
 
+    def delete_by_pfc_id(self, pfc_id: str) -> None:
+        """Remove every chunk that belongs to one PFC."""
+        if not pfc_id or not str(pfc_id).strip():
+            raise ChromaException("Cannot delete chunks without a pfc_id.")
+        try:
+            logger.info(
+                "Deleting chunks for pfc_id=%s from collection '%s'.",
+                pfc_id,
+                self.config.collection_name,
+            )
+            self._client.delete(where={"pfc_id": str(pfc_id)})
+        except ChromaException:
+            raise
+        except Exception as exc:
+            raise ChromaException(
+                f"Failed to delete chunks for PFC '{pfc_id}'."
+            ) from exc
+
+    def count_where(self, metadata_filter: dict[str, Any]) -> int:
+        try:
+            found = self._client._collection.get(where=metadata_filter, include=[])
+        except Exception as exc:
+            raise ChromaException(
+                f"Failed to query Chroma collection '{self.config.collection_name}'."
+            ) from exc
+        return len(found.get("ids") or [])
+
     def health_check(self) -> bool:
         try:
             self.count()

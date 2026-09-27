@@ -47,7 +47,7 @@ class PDFLoader:
         """
         return list(self.data_dir.glob("*.pdf"))
 
-    def load_pdf(self, file_path: Path) -> List[Document]:
+    def load_pdf(self, file_path: Path, *, skip_page_errors: bool = False) -> List[Document]:
         """
         Load a single PDF file and extract its content page by page.
 
@@ -59,14 +59,14 @@ class PDFLoader:
         """
         try:
             logger.info("Loading PDF: %s", file_path.name)
+            if skip_page_errors:
+                return self._load_pages_lenient(file_path)
 
             loader = PyPDFLoader(str(file_path))
             documents = loader.load()
-
-            # Add consistent metadata
             for i, doc in enumerate(documents):
                 doc.metadata["source"] = file_path.name
-                doc.metadata["page"] = i + 1  # human-readable page index
+                doc.metadata["page"] = i + 1  # physical PDF page index
 
             return documents
 
@@ -74,6 +74,36 @@ class PDFLoader:
             raise PDFLoaderException(
                 f"Failed to load PDF: {file_path.name}"
             ) from exc
+
+    def _load_pages_lenient(self, file_path: Path) -> List[Document]:
+        """Keep unreadable pages empty so one bad page does not abort ingestion."""
+        from pypdf import PdfReader
+
+        reader = PdfReader(str(file_path))
+        documents: List[Document] = []
+        failed_pages = 0
+        failure_type = "Exception"
+        for index, page in enumerate(reader.pages):
+            try:
+                text = page.extract_text() or ""
+            except Exception as exc:
+                failed_pages += 1
+                failure_type = type(exc).__name__
+                text = ""
+            documents.append(
+                Document(
+                    page_content=text,
+                    metadata={"source": file_path.name, "page": index + 1},
+                )
+            )
+        if failed_pages:
+            logger.warning(
+                "Skipped %s unreadable page(s) of %s: %s",
+                failed_pages,
+                file_path.name,
+                failure_type,
+            )
+        return documents
 
     def load_all_pdfs(self) -> List[Document]:
         """

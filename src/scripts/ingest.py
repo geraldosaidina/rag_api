@@ -9,7 +9,7 @@ PROJECT_SRC = Path(__file__).resolve().parents[1]
 if str(PROJECT_SRC) not in sys.path:
     sys.path.insert(0, str(PROJECT_SRC))
 
-from rag.ingest.pipeline import IngestionException, IngestionPipeline
+from rag.ingest.pipeline import IngestionConfig, IngestionException, IngestionPipeline
 
 
 def main() -> int:
@@ -18,13 +18,14 @@ def main() -> int:
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
     print(
-        "If you changed embedding_model_name or chunking settings "
-        "(chunk_size/chunk_overlap), delete data/chroma before running ingestion "
-        "to rebuild a compatible index."
+        "Legacy survey ingestion writes collection 'survey_corpus'. "
+        "It does not modify the production pfc_corpus collection."
     )
 
     try:
-        pipeline = IngestionPipeline()
+        pipeline = IngestionPipeline(
+            IngestionConfig(collection_name="survey_corpus")
+        )
         result = pipeline.run()
         print(result)
         return 0

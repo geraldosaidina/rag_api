@@ -12,4 +12,6 @@ venv/
 .hf-cache/
 data/chroma/
 data/raw_pdfs/
+data/pfc.db
+data/corpus/
 .cursor/

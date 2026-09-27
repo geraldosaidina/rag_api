@@ -23,6 +23,10 @@ class SourceResponse(BaseModel):
     page: int | str | None = None
     chunk_index: int | str | None = None
     excerpt: str | None = None
+    pfc_id: str | None = None
+    title: str | None = None
+    authors: list[str] = Field(default_factory=list)
+    year: int | None = None
 
 
 class DiagnosticsResponse(BaseModel):
@@ -52,6 +56,27 @@ class ErrorResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str
+
+
+class DocumentSummaryResponse(BaseModel):
+    id: str
+    title: str | None = None
+    authors: list[str] = Field(default_factory=list)
+    year: int | None = None
+    course: str | None = None
+    status: str
+
+
+class DocumentDetailResponse(DocumentSummaryResponse):
+    institution: str | None = None
+    department: str | None = None
+    supervisor: str | None = None
+    abstract: str | None = None
+    keywords: list[str] = Field(default_factory=list)
+    language: str | None = None
+    original_filename: str
+    page_count: int | None = None
+    error: str | None = None
 
 
 class ReadyResponse(BaseModel):

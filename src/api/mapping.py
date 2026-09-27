@@ -18,6 +18,10 @@ def to_ask_response(result: AnswerResult) -> AskResponse:
                 page=source.page,
                 chunk_index=source.chunk_index,
                 excerpt=source.excerpt,
+                pfc_id=source.pfc_id,
+                title=source.title,
+                authors=list(source.authors),
+                year=source.year,
             )
             for source in result.sources
         ],

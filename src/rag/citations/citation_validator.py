@@ -75,6 +75,7 @@ class CitationValidator:
         return cleaned
 
     def _to_source(self, item: EvidenceItem) -> SourceReference:
+        raw_pfc_id = item.metadata.get("pfc_id") if item.metadata else None
         return SourceReference(
             citation_id=item.citation_id,
             source=item.source,
@@ -82,4 +83,5 @@ class CitationValidator:
             chunk_index=item.chunk_index,
             chunk_id=item.chunk_id,
             excerpt=item.excerpt,
+            pfc_id=str(raw_pfc_id) if raw_pfc_id else None,
         )

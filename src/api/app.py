@@ -9,8 +9,10 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 
 from api.errors import register_exception_handlers
-from api.routes import ask, health
+from api.routes import ask, documents, health
+from rag.documents.ingestion import recover_processing_documents
 from rag.service.factory import RAGAppConfig, build_rag_service, load_rag_app_config
+from rag.documents.store import PfcStore
 from rag.service.rag_service import RAGService
 
 logger = logging.getLogger(__name__)
@@ -31,9 +33,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         logger.info("Initializing reusable RAGService for FastAPI lifecycle.")
         try:
             config: RAGAppConfig = app.state.rag_config or load_rag_app_config()
-            app.state.rag_service = build_rag_service(config)
+            service = build_rag_service(config)
+            app.state.rag_service = service
+            app.state.pfc_store = service.catalogue
+            app.state.pfc_corpus_directory = config.pfc_corpus_directory
             app.state.ready = True
             app.state.init_error = None
+            recover_processing_documents(
+                service.catalogue,
+                service.retriever.vector_store,
+            )
             logger.info("RAGService initialized successfully.")
         except Exception as exc:
             app.state.rag_service = None
@@ -56,6 +65,8 @@ def create_app(
     *,
     rag_service: RAGService | None = None,
     rag_config: RAGAppConfig | None = None,
+    pfc_store: PfcStore | None = None,
+    pfc_corpus_directory: str | None = None,
     initialize_rag: bool = True,
 ) -> FastAPI:
     """
@@ -77,6 +88,8 @@ def create_app(
     )
     app.state.rag_service = rag_service
     app.state.rag_config = rag_config
+    app.state.pfc_store = pfc_store
+    app.state.pfc_corpus_directory = pfc_corpus_directory
     app.state.initialize_rag = initialize_rag and rag_service is None
     app.state.ready = rag_service is not None
     app.state.init_error = None
@@ -84,4 +97,5 @@ def create_app(
     register_exception_handlers(app)
     app.include_router(health.router)
     app.include_router(ask.router)
+    app.include_router(documents.router)
     return app
