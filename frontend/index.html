@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assistente de PFCs</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Arquivo PFC</a>
+      <nav aria-label="Secções">
+        <a href="/" aria-current="page">Assistente</a>
+        <a href="/biblioteca">Biblioteca</a>
+      </nav>
+    </header>
+    <main class="narrow">
+      <section class="intro">
+        <h1>Explore os Projectos Finais de Curso</h1>
+        <p>
+          Faça uma pergunta em linguagem natural. A resposta é gerada a partir
+          dos PFCs indexados e indica os projectos que a sustentam.
+        </p>
+        <p class="muted">Cada pergunta é respondida de forma independente.</p>
+      </section>
+      <section class="suggestions" aria-label="Sugestões de perguntas">
+        <h2>Sugestões</h2>
+        <button type="button" data-suggestion>Que projectos abordam redes sem fios?</button>
+        <button type="button" data-suggestion>Que tecnologias foram usadas nos projectos relacionados com segurança?</button>
+        <button type="button" data-suggestion>Existem projectos relacionados com plataformas digitais?</button>
+        <button type="button" data-suggestion>Que metodologias foram usadas nos projectos sobre redes?</button>
+      </section>
+      <form id="ask-form">
+        <label for="question">Pergunta</label>
+        <textarea
+          id="question"
+          name="question"
+          rows="4"
+          maxlength="2000"
+          required
+          placeholder="Pergunte sobre temas, tecnologias ou metodologias usadas nos PFCs..."
+        ></textarea>
+        <button id="submit-question" type="submit">Perguntar</button>
+      </form>
+      <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+      <article id="result" class="result" hidden>
+        <h2>Pergunta</h2>
+        <p id="asked" class="asked"></p>
+        <h2>Resposta</h2>
+        <div id="answer" class="answer"></div>
+        <p id="limit-note" class="limit-note" hidden>
+          A evidência recuperada não foi suficiente para uma resposta mais completa.
+        </p>
+        <h2>Fontes</h2>
+        <div id="sources" class="sources"></div>
+      </article>
+      <div id="error" class="error" role="alert" hidden>
+        <p>Não foi possível obter uma resposta neste momento. Tente novamente.</p>
+        <button id="retry" type="button">Tentar novamente</button>
+      </div>
+    </main>
+    <script type="module" src="/assets/assistant.mjs"></script>
+  </body>
+</html>

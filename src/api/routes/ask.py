@@ -6,6 +6,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException, Request
 
+from api.evaluation import append_interaction
 from api.mapping import to_ask_response
 from api.schemas import AskRequest, AskResponse, ErrorResponse
 from rag.service.rag_service import RAGService
@@ -47,4 +48,16 @@ def ask_question(payload: AskRequest, request: Request) -> AskResponse:
     service = _get_rag_service(request)
     logger.info("Handling /api/v1/ask request.")
     result = service.answer(payload.question)
-    return to_ask_response(result)
+    response = to_ask_response(result)
+    _record_evaluation(request, response)
+    return response
+
+
+def _record_evaluation(request: Request, response: AskResponse) -> None:
+    path = getattr(request.app.state, "evaluation_log_path", None)
+    if not path:
+        return
+    try:
+        append_interaction(path, response)
+    except OSError as exc:
+        logger.error("Evaluation log was not written: %s", exc)

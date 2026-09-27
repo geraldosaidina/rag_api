@@ -1,0 +1,890 @@
+{
+  "dataset_version": "1.0",
+  "corpus": "pfc_corpus",
+  "language": "pt",
+  "construction": {
+    "method": "Inspecção directa do texto extraído dos PDF com pypdf e dos metadados do catálogo SQLite. A relevância esperada não foi definida a partir de recuperação, reranking ou respostas geradas.",
+    "excluded_pfc_id": "249225c1-cbfa-4fad-b073-a54a465186ba",
+    "exclusion_reason": "Estado failed: o PDF não produziu texto utilizável e não tem vectores. Não entra como evidência recuperável."
+  },
+  "documents": [
+    {
+      "pfc_id": "d260a009-5aff-4023-b262-be3055c3c4cf",
+      "author": "Felipe Eduardo Teixeira Viveros",
+      "year": 2011,
+      "page_count": 85,
+      "title": "Redes Ópticas Passivas (PON): Proposta de Projecto de uma Rede EPON utilizando Técnicas FTTC/FTTB, para a Polana Cimento A"
+    },
+    {
+      "pfc_id": "5a49b09b-8393-4d24-bf99-f0817067972b",
+      "author": "Mayra Patrícia Duarte Sofiano",
+      "year": 2015,
+      "page_count": 106,
+      "title": "Dimensionamento de uma rede WiMax para prover serviços de internet banda larga da TDM no distrito de Marracuene"
+    },
+    {
+      "pfc_id": "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+      "author": "Diana João Matsinhe",
+      "year": 2015,
+      "page_count": 70,
+      "title": "Dimensionamento de uma rede híbrida fibra óptica-wireless para a oferta da internet banda larga da TDM — caso Matola-Rio"
+    },
+    {
+      "pfc_id": "a160046c-7797-4752-84f0-0acbefc6b3ec",
+      "author": "Belso Bento Langa",
+      "year": 2016,
+      "page_count": 105,
+      "title": "Sistema de videovigilância IP para Avenida 25 de Setembro em Maputo"
+    },
+    {
+      "pfc_id": "da25666f-1540-47a9-b336-8223490c8948",
+      "author": "Edson Samuel Langa",
+      "year": 2018,
+      "page_count": 93,
+      "title": "Dimensionamento de um sistema de identificação por radiofrequência como ferramenta de ensino e aprendizagem no ISUTC"
+    },
+    {
+      "pfc_id": "cd669613-e54e-4b55-b452-4a3dd127ae2c",
+      "author": "Mércia Cecília David Fortes",
+      "year": 2018,
+      "page_count": 101,
+      "title": "Projecção de um sistema de antenas distribuídas para melhorar a cobertura indoor da rede 3G da Vodacom no Edifício Platinum"
+    },
+    {
+      "pfc_id": "788b6e42-6c73-4d67-aee8-b826bdea2498",
+      "author": "Nereid da Josefa Maurício King",
+      "year": 2019,
+      "page_count": 87,
+      "title": "Sistema automatizado para divulgação de promoções de produtos e serviços em estabelecimentos comerciais na Cidade de Maputo"
+    },
+    {
+      "pfc_id": "ba1f6d93-b1a8-4d7c-8e20-9e5ca0ccba9b",
+      "author": "Óscar Clovis Germano Guibunda",
+      "year": 2019,
+      "page_count": 72,
+      "title": "Dimensionamento de um sistema de vídeo vigilância para o condomínio Belo-Horizonte"
+    },
+    {
+      "pfc_id": "6601c5a5-beee-43ec-b654-4c3cb275e990",
+      "author": "Arnaldo Manuel Nhaguilunguane",
+      "year": 2021,
+      "page_count": 82,
+      "title": "Concepção de um ecossistema SaaS para acompanhamento médico de pacientes em tratamento prolongado no Centro de Saúde 1º de Maio"
+    },
+    {
+      "pfc_id": "620236cd-826a-4825-9c04-182064491f52",
+      "author": "Eugénia Laurícia Alcino Nhacuonga",
+      "year": 2023,
+      "page_count": 125,
+      "title": "Proposta de uma plataforma para solicitação de certificado de registo criminal na Cidade de Maputo"
+    },
+    {
+      "pfc_id": "1f40a684-4498-4a32-92f6-c548a2e43e3c",
+      "author": "Lectícia Maconne Aurélio Cuna",
+      "year": 2024,
+      "page_count": 111,
+      "title": "Proposta de desenvolvimento de um sistema integrado de gestão de campos agrícolas — caso de estudo: Vale do Infulene"
+    },
+    {
+      "pfc_id": "92ae9c58-ad57-4ccf-b648-d7b95bb31a40",
+      "author": "Vagner Flávio Fafetine Nhachungue",
+      "year": 2024,
+      "page_count": 102,
+      "title": "Avaliação de vulnerabilidades em portais do governo de Moçambique"
+    },
+    {
+      "pfc_id": "bcd14962-06cf-4ac4-bfd1-dd45f2332da1",
+      "author": "Hassan Jafá Narciso Mutole",
+      "year": 2025,
+      "page_count": 99,
+      "title": "Projecto de uma plataforma para o recrutamento de jogadores moçambicanos — caso de estudo: Liga Desportiva de Maputo"
+    },
+    {
+      "pfc_id": "981767e2-bd91-40bd-a3ee-763090a39059",
+      "author": "Vitilio Martins de Sousa Júnior",
+      "year": 2025,
+      "page_count": 105,
+      "title": "Concepção de uma plataforma digital para financiamento de projectos finais de curso (caso de estudo: ISUTC)"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q001",
+      "category": "direct_fact",
+      "question": "Quem elaborou o projecto de videovigilância IP para a Avenida 25 de Setembro e em que ano foi apresentado?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Autor: Belso Bento Langa. Ano de apresentação: Junho de 2016. Instituição na capa: Instituto Superior de Transportes e Comunicações. O objectivo geral é dimensionar um sistema de videovigilância IP (CFTV) para essa avenida, com fibra óptica como meio de transmissão.",
+        "primary_pfc_ids": ["a160046c-7797-4752-84f0-0acbefc6b3ec"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "a160046c-7797-4752-84f0-0acbefc6b3ec",
+          "author": "Belso Bento Langa",
+          "year": 2016,
+          "pdf_pages": [1, 18],
+          "evidence_notes": "A capa identifica o autor, o ISUTC e Junho de 2016. A página 18 formula o objectivo geral de dimensionar videovigilância IP com fibra óptica na Avenida 25 de Setembro."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Facto directo de autoria, ano e objectivo, localizado na capa e no desenho teórico do mesmo PFC."
+    },
+    {
+      "id": "Q002",
+      "category": "direct_fact",
+      "question": "Qual é o objectivo geral do projecto de Edson Samuel Langa?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Dimensionar um sistema de identificação por radiofrequência como ferramenta de ensino e aprendizagem na Engenharia Informática e de Telecomunicações do ISUTC, para apoiar práticas laboratoriais e a ligação entre a teoria e a aplicação.",
+        "primary_pfc_ids": ["da25666f-1540-47a9-b336-8223490c8948"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "da25666f-1540-47a9-b336-8223490c8948",
+          "author": "Edson Samuel Langa",
+          "year": 2018,
+          "pdf_pages": [15, 17],
+          "evidence_notes": "O resumo descreve o dimensionamento do sistema e uma experiência laboratorial. A página 17 enuncia o objectivo geral para auxílio das práticas laboratoriais no ISUTC."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Pergunta factual sobre o objectivo de um PFC nomeado, respondida pelo resumo e pelo objectivo geral."
+    },
+    {
+      "id": "Q003",
+      "category": "direct_fact",
+      "question": "Qual é o objectivo do projecto de Lectícia Maconne Aurélio Cuna sobre o Vale do Infulene?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Propor um sistema integrado de gestão de culturas agrícolas, com enfoque no controlo de pragas, aplicado ao Vale do Infulene. O resumo acrescenta um protótipo com identificação de pragas.",
+        "primary_pfc_ids": ["1f40a684-4498-4a32-92f6-c548a2e43e3c"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "1f40a684-4498-4a32-92f6-c548a2e43e3c",
+          "author": "Lectícia Maconne Aurélio Cuna",
+          "year": 2024,
+          "pdf_pages": [17, 22],
+          "evidence_notes": "O resumo situa o sistema no controlo de pragas do Vale do Infulene. A página 22 fixa o objectivo geral de gestão de culturas agrícolas com esse enfoque."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Facto directo sobre o objectivo de um PFC identificado pela autora e pelo caso de estudo."
+    },
+    {
+      "id": "Q004",
+      "category": "direct_fact",
+      "question": "O que pretende o projecto de Nereid da Josefa Maurício King?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Desenvolver um sistema automatizado para divulgar promoções de produtos e serviços de estabelecimentos comerciais na Cidade de Maputo. O trabalho levantou requisitos e construiu um protótipo funcional de aplicação móvel.",
+        "primary_pfc_ids": ["788b6e42-6c73-4d67-aee8-b826bdea2498"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "788b6e42-6c73-4d67-aee8-b826bdea2498",
+          "author": "Nereid da Josefa Maurício King",
+          "year": 2019,
+          "pdf_pages": [15, 17],
+          "evidence_notes": "O resumo descreve a aplicação móvel e o protótipo. A página 17 formula o objectivo geral de um sistema de auxílio à propaganda de promoções na cidade."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Facto directo sobre a finalidade de um PFC nomeado."
+    },
+    {
+      "id": "Q005",
+      "category": "direct_fact",
+      "question": "Qual é a finalidade do projecto de Arnaldo Manuel Nhaguilunguane no Centro de Saúde 1º de Maio?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Conceber uma solução de acompanhamento de pacientes em tratamento prolongado. O objectivo geral especifica uma aplicação móvel e um portal web. A capa designa o conjunto como ecossistema SaaS. Houve entrevistas à equipa médica e administrativa entre 27 e 30 de Abril de 2021.",
+        "primary_pfc_ids": ["6601c5a5-beee-43ec-b654-4c3cb275e990"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "6601c5a5-beee-43ec-b654-4c3cb275e990",
+          "author": "Arnaldo Manuel Nhaguilunguane",
+          "year": 2021,
+          "pdf_pages": [1, 14, 16],
+          "evidence_notes": "A capa nomeia o ecossistema SaaS e o centro de saúde. O resumo relata as entrevistas e o protótipo web e móvel. A página 16 enuncia o objectivo geral."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Facto directo sobre a finalidade de um PFC nomeado e o seu caso de estudo."
+    },
+    {
+      "id": "Q006",
+      "category": "semantic_paraphrase",
+      "question": "Que projecto propõe etiquetas que identificam sozinhas objectos por sinais de rádio, para servir de recurso de laboratório a estudantes de telecomunicações?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "O PFC de Edson Samuel Langa dimensiona um sistema de identificação por radiofrequência como ferramenta de ensino e inclui uma experiência laboratorial.",
+        "primary_pfc_ids": ["da25666f-1540-47a9-b336-8223490c8948"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "da25666f-1540-47a9-b336-8223490c8948",
+          "author": "Edson Samuel Langa",
+          "year": 2018,
+          "pdf_pages": [15, 17],
+          "evidence_notes": "O resumo e o objectivo geral descrevem a identificação por radiofrequência aplicada a práticas laboratoriais de engenharia."
+        }
+      ],
+      "semantic_test": {
+        "document_wording": "sistema de identificação por radiofrequência; ferramenta de ensino e aprendizagem; experiência laboratorial",
+        "query_paraphrase": "etiquetas que identificam sozinhas objectos por sinais de rádio; recurso de laboratório para estudantes de telecomunicações",
+        "exact_keyword_overlap_reduced": true,
+        "notes": "A pergunta não usa RFID, radiofrequência, nem o nome do autor. O conceito de identificação automática por rádio e o uso didáctico em laboratório estão no resumo."
+      },
+      "rationale": "Teste semântico: a formulação do estudante evita a designação técnica distintiva do PFC e conserva o conceito."
+    },
+    {
+      "id": "Q007",
+      "category": "semantic_paraphrase",
+      "question": "Que trabalho dimensiona uma rede sem fios de banda larga, com qualidade de serviço, para um distrito em que os moradores já têm voz móvel mas não recebem internet da operadora fixa?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Mayra Patrícia Duarte Sofiano dimensiona uma rede de acesso WiMax para internet de banda larga da TDM no distrito de Marracuene. O problema descrito é a ausência de banda larga fixa, apesar de existir voz móvel da mcel, Vodacom e Movitel.",
+        "primary_pfc_ids": ["5a49b09b-8393-4d24-bf99-f0817067972b"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "5a49b09b-8393-4d24-bf99-f0817067972b",
+          "author": "Mayra Patrícia Duarte Sofiano",
+          "year": 2015,
+          "pdf_pages": [16, 18, 19],
+          "evidence_notes": "O resumo e o objectivo geral tratam da rede de acesso sem fios para banda larga. A página 18 descreve voz móvel sem internet de banda larga fixa nesse distrito."
+        }
+      ],
+      "semantic_test": {
+        "document_wording": "rede de acesso baseada na tecnologia WiMax; internet banda larga da TDM; distrito de Marracuene; voz das operadoras móveis sem banda larga fixa",
+        "query_paraphrase": "rede sem fios de banda larga com qualidade de serviço; distrito com voz móvel e sem internet da operadora fixa",
+        "exact_keyword_overlap_reduced": true,
+        "notes": "A pergunta não usa WiMax, Marracuene nem TDM. O traço distintivo é a combinação de banda larga sem fios com a ausência de internet fixa num distrito que já tem voz móvel."
+      },
+      "rationale": "Teste semântico de um único PFC. A rede híbrida de Matola-Rio não descreve este problema de voz móvel sem internet fixa."
+    },
+    {
+      "id": "Q008",
+      "category": "semantic_paraphrase",
+      "question": "Como reforçar o sinal de telemóvel de terceira geração dentro de um prédio de casas e escritórios, quando as paredes e a cave impedem que o sinal das torres exteriores chegue com qualidade?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Mércia Cecília David Fortes projecta um sistema de antenas distribuídas para melhorar a cobertura interior da rede 3G da Vodacom no Edifício Platinum. O texto atribui a má cobertura à atenuação das paredes, da cave, dos elevadores e à dependência das macrocélulas exteriores.",
+        "primary_pfc_ids": ["cd669613-e54e-4b55-b452-4a3dd127ae2c"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "cd669613-e54e-4b55-b452-4a3dd127ae2c",
+          "author": "Mércia Cecília David Fortes",
+          "year": 2018,
+          "pdf_pages": [17, 19],
+          "evidence_notes": "O resumo apresenta antenas distribuídas para cobertura interior 3G. A página 19 explica a atenuação pelas paredes e pela cave e enuncia o objectivo geral."
+        }
+      ],
+      "semantic_test": {
+        "document_wording": "sistema de antenas distribuídas; cobertura indoor; rede 3G da Vodacom; Edifício Platinum; atenuação das paredes e da cave",
+        "query_paraphrase": "sinal de telemóvel de terceira geração dentro de um prédio de casas e escritórios; paredes e cave; torres exteriores",
+        "exact_keyword_overlap_reduced": true,
+        "notes": "A pergunta não usa antenas distribuídas, DAS, indoor, Vodacom nem Platinum. Conserva o problema físico da cobertura interior de terceira geração."
+      },
+      "rationale": "Teste semântico do problema de cobertura interior, sem a designação técnica nem o nome do edifício."
+    },
+    {
+      "id": "Q009",
+      "category": "semantic_paraphrase",
+      "question": "Que proposta troca o cabo de cobre da última milha por fibra que chega ao edifício ou ao armário junto à rua, sem equipamentos activos no meio do percurso?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Felipe Eduardo Teixeira Viveros propõe uma rede óptica passiva no padrão EPON, com técnicas FTTB e FTTC, para substituir o cobre na rede de acesso da Polana Cimento A.",
+        "primary_pfc_ids": ["d260a009-5aff-4023-b262-be3055c3c4cf"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "d260a009-5aff-4023-b262-be3055c3c4cf",
+          "author": "Felipe Eduardo Teixeira Viveros",
+          "year": 2011,
+          "pdf_pages": [13, 14, 15],
+          "evidence_notes": "O resumo indica EPON com FTTB e FTTC. As páginas 14 e 15 descrevem o cobre da rede de acesso e a opção por redes ópticas passivas."
+        }
+      ],
+      "semantic_test": {
+        "document_wording": "redes ópticas passivas; padrão EPON; técnicas de acesso FTTB e FTTC; cabo de cobre na rede de acesso da Polana Cimento A",
+        "query_paraphrase": "trocar o cobre da última milha por fibra até ao edifício ou ao armário de rua, sem equipamentos activos no percurso",
+        "exact_keyword_overlap_reduced": true,
+        "notes": "A pergunta desenvolve o significado de rede óptica passiva e de FTTB/FTTC sem usar essas siglas nem o nome do bairro."
+      },
+      "rationale": "Teste semântico da arquitectura de acesso. A rede híbrida com segmento sem fios não satisfaz a condição de percurso sem equipamentos activos."
+    },
+    {
+      "id": "Q010",
+      "category": "semantic_paraphrase",
+      "question": "Que proposta permite pedir à distância o documento que comprova se a pessoa tem antecedentes, para não voltar à repartição a levantá-lo, quando esse papel é exigido para emprego ou carta de condução?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Eugénia Laurícia Alcino Nhacuonga propõe um protótipo para solicitar o certificado de registo criminal na Cidade de Maputo. O texto associa o documento a antecedentes criminais, a carta de condução e a concursos, e descreve a necessidade de ir à repartição mais do que uma vez.",
+        "primary_pfc_ids": ["620236cd-826a-4825-9c04-182064491f52"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "620236cd-826a-4825-9c04-182064491f52",
+          "author": "Eugénia Laurícia Alcino Nhacuonga",
+          "year": 2023,
+          "pdf_pages": [15, 16, 17],
+          "evidence_notes": "O resumo propõe a plataforma e a prototipagem. As páginas 16 e 17 ligam o documento a antecedentes, emprego, carta de condução e deslocações repetidas, e fixam o objectivo geral."
+        }
+      ],
+      "semantic_test": {
+        "document_wording": "certificado de registo criminal; antecedentes criminais; deslocação à repartição central duas ou mais vezes; carta de condução e concursos públicos",
+        "query_paraphrase": "pedir à distância o documento de antecedentes, sem voltar à repartição, para emprego ou carta de condução",
+        "exact_keyword_overlap_reduced": true,
+        "notes": "A pergunta não usa registo criminal nem certificado. Mantém antecedentes, repartição e carta de condução porque fazem parte da situação descrita no PFC."
+      },
+      "rationale": "Teste semântico do serviço proposto, sem a designação oficial do documento."
+    },
+    {
+      "id": "Q011",
+      "category": "semantic_paraphrase",
+      "question": "Que estudo procura falhas que um atacante possa explorar nos sítios web de ministérios e de outras entidades do Estado moçambicano?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Vagner Flávio Fafetine Nhachungue avalia vulnerabilidades de segurança em portais do governo de Moçambique, com as ferramentas WPScan, ZAP e Nuclei, e classifica achados pela OWASP Top 10 de 2021.",
+        "primary_pfc_ids": ["92ae9c58-ad57-4ccf-b648-d7b95bb31a40"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "92ae9c58-ad57-4ccf-b648-d7b95bb31a40",
+          "author": "Vagner Flávio Fafetine Nhachungue",
+          "year": 2024,
+          "pdf_pages": [17, 20],
+          "evidence_notes": "O resumo descreve a avaliação, as ferramentas e a classificação OWASP. A página 20 enuncia o objectivo geral sobre portais do governo."
+        }
+      ],
+      "semantic_test": {
+        "document_wording": "avaliação de vulnerabilidades em portais do governo de Moçambique",
+        "query_paraphrase": "falhas que um atacante possa explorar em sítios web de ministérios e de outras entidades do Estado",
+        "exact_keyword_overlap_reduced": true,
+        "notes": "A pergunta não usa vulnerabilidades nem portais. Substitui a fórmula do título por falhas exploráveis em sítios de entidades do Estado."
+      },
+      "rationale": "Teste semântico do objecto de estudo de segurança de aplicações web públicas."
+    },
+    {
+      "id": "Q012",
+      "category": "topic_discovery",
+      "question": "Que projectos tratam de acesso sem fios à internet ou de melhorar a cobertura da rede móvel?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Três projectos tratam disto de forma central: Mayra dimensiona WiMax para banda larga no distrito de Marracuene; Diana dimensiona uma rede híbrida fibra-wireless (GPON e WiMax 802.16d) para Matola-Rio; Mércia projecta antenas distribuídas para a cobertura interior 3G da Vodacom.",
+        "primary_pfc_ids": [
+          "5a49b09b-8393-4d24-bf99-f0817067972b",
+          "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "cd669613-e54e-4b55-b452-4a3dd127ae2c"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "5a49b09b-8393-4d24-bf99-f0817067972b",
+          "author": "Mayra Patrícia Duarte Sofiano",
+          "year": 2015,
+          "pdf_pages": [16, 19],
+          "evidence_notes": "Resumo e objectivo geral de uma rede de acesso sem fios WiMax para internet de banda larga."
+        },
+        {
+          "pfc_id": "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "author": "Diana João Matsinhe",
+          "year": 2015,
+          "pdf_pages": [12, 15],
+          "evidence_notes": "Resumo e objectivo geral de uma rede de acesso híbrida fibra-wireless, com GPON e WiMax 802.16d."
+        },
+        {
+          "pfc_id": "cd669613-e54e-4b55-b452-4a3dd127ae2c",
+          "author": "Mércia Cecília David Fortes",
+          "year": 2018,
+          "pdf_pages": [17, 19],
+          "evidence_notes": "Resumo e objectivo geral de antenas distribuídas para cobertura interior da rede móvel 3G."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "A rede EPON da Polana é acesso por fibra, não cobertura sem fios. A identificação por rádio do ISUTC é uma ferramenta de ensino, não uma rede de acesso nem de cobertura móvel."
+    },
+    {
+      "id": "Q013",
+      "category": "topic_discovery",
+      "question": "Que projectos propõem uma plataforma digital para pedir um documento oficial, recrutar jogadores ou financiar trabalhos académicos?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Eugénia propõe uma plataforma para solicitar o certificado de registo criminal. Hassan projecta uma plataforma de recrutamento de jogadores juvenis da Liga Desportiva de Maputo. Vitilio concebe uma plataforma para financiar projectos académicos, com caso de estudo no ISUTC.",
+        "primary_pfc_ids": [
+          "620236cd-826a-4825-9c04-182064491f52",
+          "bcd14962-06cf-4ac4-bfd1-dd45f2332da1",
+          "981767e2-bd91-40bd-a3ee-763090a39059"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "620236cd-826a-4825-9c04-182064491f52",
+          "author": "Eugénia Laurícia Alcino Nhacuonga",
+          "year": 2023,
+          "pdf_pages": [15, 17],
+          "evidence_notes": "Resumo e objectivo geral de uma plataforma para solicitar o certificado de registo criminal."
+        },
+        {
+          "pfc_id": "bcd14962-06cf-4ac4-bfd1-dd45f2332da1",
+          "author": "Hassan Jafá Narciso Mutole",
+          "year": 2025,
+          "pdf_pages": [14, 17],
+          "evidence_notes": "O resumo descreve a plataforma de recrutamento. A página 17 fixa o objectivo geral para jogadores juvenis da Liga Desportiva de Maputo."
+        },
+        {
+          "pfc_id": "981767e2-bd91-40bd-a3ee-763090a39059",
+          "author": "Vitilio Martins de Sousa Júnior",
+          "year": 2025,
+          "pdf_pages": [15, 18],
+          "evidence_notes": "O resumo e o objectivo geral concebem uma plataforma digital de financiamento de projectos académicos."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "A pergunta nomeia três serviços. Outros sistemas digitais do corpus não cobrem pedido de documento, recrutamento desportivo ou financiamento académico."
+    },
+    {
+      "id": "Q014",
+      "category": "topic_discovery",
+      "question": "Que projectos dimensionam um sistema de câmaras para vigiar um espaço físico, seja uma avenida ou um condomínio?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Belso dimensiona videovigilância IP com fibra óptica para a Avenida 25 de Setembro. Óscar planeia vídeo-vigilância para o condomínio Belo-Horizonte e simula a solução com o IP Video System Design Tool.",
+        "primary_pfc_ids": [
+          "a160046c-7797-4752-84f0-0acbefc6b3ec",
+          "ba1f6d93-b1a8-4d7c-8e20-9e5ca0ccba9b"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "a160046c-7797-4752-84f0-0acbefc6b3ec",
+          "author": "Belso Bento Langa",
+          "year": 2016,
+          "pdf_pages": [15, 18],
+          "evidence_notes": "Resumo e objectivo geral de videovigilância IP por fibra óptica na Avenida 25 de Setembro."
+        },
+        {
+          "pfc_id": "ba1f6d93-b1a8-4d7c-8e20-9e5ca0ccba9b",
+          "author": "Óscar Clovis Germano Guibunda",
+          "year": 2019,
+          "pdf_pages": [14, 16],
+          "evidence_notes": "O resumo descreve o dimensionamento e a simulação para o condomínio. A página 16 enuncia o objectivo geral."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Só estes dois PFC têm como objecto um sistema de câmaras para um espaço físico. A avaliação de sítios web não é videovigilância."
+    },
+    {
+      "id": "Q015",
+      "category": "topic_discovery",
+      "question": "Que projectos adoptam a fibra óptica como meio de transmissão da solução que propõem?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Felipe propõe uma rede de acesso EPON em fibra, com FTTB e FTTC. Diana integra GPON na parte óptica de uma rede híbrida fibra-wireless. Belso adopta fibra óptica como meio do sistema de videovigilância IP.",
+        "primary_pfc_ids": [
+          "d260a009-5aff-4023-b262-be3055c3c4cf",
+          "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "a160046c-7797-4752-84f0-0acbefc6b3ec"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "d260a009-5aff-4023-b262-be3055c3c4cf",
+          "author": "Felipe Eduardo Teixeira Viveros",
+          "year": 2011,
+          "pdf_pages": [13, 14],
+          "evidence_notes": "O resumo propõe EPON com FTTB/FTTC. A introdução contrapõe essa fibra ao cobre da rede de acesso."
+        },
+        {
+          "pfc_id": "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "author": "Diana João Matsinhe",
+          "year": 2015,
+          "pdf_pages": [12, 15],
+          "evidence_notes": "O resumo integra GPON na rede óptica. O objectivo geral é uma rede híbrida fibra-wireless."
+        },
+        {
+          "pfc_id": "a160046c-7797-4752-84f0-0acbefc6b3ec",
+          "author": "Belso Bento Langa",
+          "year": 2016,
+          "pdf_pages": [15, 18],
+          "evidence_notes": "O resumo e o objectivo geral indicam fibra óptica como meio de transmissão da videovigilância."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "A menção de fibra como alternativa genérica, ou como cabo possível num capítulo teórico de antenas, não chega para considerar o PFC uma proposta cujo meio é a fibra."
+    },
+    {
+      "id": "Q016",
+      "category": "topic_discovery",
+      "question": "Que projectos chegaram a construir um protótipo de software, para além de estudar o problema?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Seis projectos declaram um protótipo de software: Nereid (aplicação móvel de promoções), Eugénia (protótipo do pedido de certificado), Arnaldo (protótipo web e móvel), Lectícia (protótipo de gestão agrícola), Hassan (prototipagem das interfaces de recrutamento) e Vitilio (protótipo da plataforma de financiamento).",
+        "primary_pfc_ids": [
+          "788b6e42-6c73-4d67-aee8-b826bdea2498",
+          "620236cd-826a-4825-9c04-182064491f52",
+          "6601c5a5-beee-43ec-b654-4c3cb275e990",
+          "1f40a684-4498-4a32-92f6-c548a2e43e3c",
+          "bcd14962-06cf-4ac4-bfd1-dd45f2332da1",
+          "981767e2-bd91-40bd-a3ee-763090a39059"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "788b6e42-6c73-4d67-aee8-b826bdea2498",
+          "author": "Nereid da Josefa Maurício King",
+          "year": 2019,
+          "pdf_pages": [15],
+          "evidence_notes": "O resumo afirma que os requisitos foram validados com um protótipo funcional de aplicação móvel."
+        },
+        {
+          "pfc_id": "620236cd-826a-4825-9c04-182064491f52",
+          "author": "Eugénia Laurícia Alcino Nhacuonga",
+          "year": 2023,
+          "pdf_pages": [15, 17],
+          "evidence_notes": "O resumo diz que o sistema foi modelado, desenvolvido e testado. O objectivo geral é desenvolver o protótipo."
+        },
+        {
+          "pfc_id": "6601c5a5-beee-43ec-b654-4c3cb275e990",
+          "author": "Arnaldo Manuel Nhaguilunguane",
+          "year": 2021,
+          "pdf_pages": [14],
+          "evidence_notes": "O resumo relata a concepção e a codificação de um protótipo web e móvel."
+        },
+        {
+          "pfc_id": "1f40a684-4498-4a32-92f6-c548a2e43e3c",
+          "author": "Lectícia Maconne Aurélio Cuna",
+          "year": 2024,
+          "pdf_pages": [17],
+          "evidence_notes": "O resumo descreve um protótipo com cadastro de campos, identificação de pragas e painéis de monitorização."
+        },
+        {
+          "pfc_id": "bcd14962-06cf-4ac4-bfd1-dd45f2332da1",
+          "author": "Hassan Jafá Narciso Mutole",
+          "year": 2025,
+          "pdf_pages": [14],
+          "evidence_notes": "O resumo indica modelação UML e prototipagem das principais interfaces da plataforma."
+        },
+        {
+          "pfc_id": "981767e2-bd91-40bd-a3ee-763090a39059",
+          "author": "Vitilio Martins de Sousa Júnior",
+          "year": 2025,
+          "pdf_pages": [15],
+          "evidence_notes": "O resumo indica a elaboração de um protótipo da plataforma de financiamento."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Os projectos de dimensionamento de rede, de videovigilância, de identificação por rádio e de inspecção de sítios existentes não apresentam um protótipo de software como resultado."
+    },
+    {
+      "id": "Q017",
+      "category": "technology_methodology",
+      "question": "Que padrão de rede óptica e que formas de chegada da fibra são propostos para a Polana Cimento A?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Padrão EPON (rede óptica passiva Ethernet). Técnicas de acesso FTTB e FTTC. A rede actual descrita usa cobre e é tratada como o estrangulamento da última milha.",
+        "primary_pfc_ids": ["d260a009-5aff-4023-b262-be3055c3c4cf"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "d260a009-5aff-4023-b262-be3055c3c4cf",
+          "author": "Felipe Eduardo Teixeira Viveros",
+          "year": 2011,
+          "pdf_pages": [13, 14],
+          "evidence_notes": "O resumo nomeia EPON, FTTB e FTTC. A introdução explica a escolha de redes ópticas passivas face ao cobre."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Pergunta de arquitectura sobre tecnologias nomeadas no próprio estudo de dimensionamento."
+    },
+    {
+      "id": "Q018",
+      "category": "technology_methodology",
+      "question": "Que ferramentas de inspecção e que classificação de risco foram usadas no estudo das falhas de segurança dos sítios do governo?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Ferramentas: WPScan, ZAP e Nuclei. Classificação pela OWASP Top 10 de 2021, com níveis de risco crítico, alto, médio e baixo. A investigação é descrita como exploratória e descritiva.",
+        "primary_pfc_ids": ["92ae9c58-ad57-4ccf-b648-d7b95bb31a40"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "92ae9c58-ad57-4ccf-b648-d7b95bb31a40",
+          "author": "Vagner Flávio Fafetine Nhachungue",
+          "year": 2024,
+          "pdf_pages": [17, 20],
+          "evidence_notes": "O resumo lista as ferramentas, a OWASP 2021 e o tipo de pesquisa. A página 20 fixa o objectivo de avaliar os portais do governo."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Pergunta sobre o método e as ferramentas efectivamente usados, não sobre o título do estudo."
+    },
+    {
+      "id": "Q019",
+      "category": "technology_methodology",
+      "question": "Que técnica é proposta para identificar pragas e que abordagem de investigação foi usada no sistema agrícola do Vale do Infulene?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "O protótipo inclui identificação automatizada de pragas com inteligência artificial, além de registo de culturas, recomendação de tratamentos e painéis. A investigação é mista, com inquéritos a agricultores, entrevistas semiestruturadas e pesquisa documental. A modelação usa prototipagem e diagramas UML.",
+        "primary_pfc_ids": ["1f40a684-4498-4a32-92f6-c548a2e43e3c"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "1f40a684-4498-4a32-92f6-c548a2e43e3c",
+          "author": "Lectícia Maconne Aurélio Cuna",
+          "year": 2024,
+          "pdf_pages": [17, 22],
+          "evidence_notes": "O resumo descreve a abordagem mista, a inteligência artificial e o protótipo. A página 22 limita o objectivo ao controlo de pragas no Vale do Infulene."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Pergunta de tecnologia e método sobre o que o resumo atribui ao protótipo e à investigação."
+    },
+    {
+      "id": "Q020",
+      "category": "technology_methodology",
+      "question": "Que abordagem de investigação e que técnicas de modelação foram usadas no projecto de recrutamento de jogadores da Liga Desportiva de Maputo?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Abordagem mista. Entrevistas semiestruturadas com técnicos e dirigentes da Liga Desportiva de Maputo. Modelação com diagramas UML e prototipagem das interfaces. Funções previstas: registo de jogadores, vagas de clubes, mensagens e estatísticas.",
+        "primary_pfc_ids": ["bcd14962-06cf-4ac4-bfd1-dd45f2332da1"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "bcd14962-06cf-4ac4-bfd1-dd45f2332da1",
+          "author": "Hassan Jafá Narciso Mutole",
+          "year": 2025,
+          "pdf_pages": [14, 17],
+          "evidence_notes": "O resumo descreve a abordagem mista, as entrevistas, o UML e a prototipagem. A página 17 enuncia o objectivo da plataforma."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Pergunta de metodologia sobre procedimentos que o resumo declara ter usado."
+    },
+    {
+      "id": "Q021",
+      "category": "metadata_constrained",
+      "question": "Que projectos finais de curso deste arquivo são de 2015?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Dois projectos, ambos com capa de Maio de 2015 e licenciatura em Engenharia Informática e de Telecomunicações no ISUTC: Mayra Patrícia Duarte Sofiano, rede WiMax para Marracuene; Diana João Matsinhe, rede híbrida fibra-wireless para Matola-Rio.",
+        "primary_pfc_ids": [
+          "5a49b09b-8393-4d24-bf99-f0817067972b",
+          "ff1aeb14-9c42-4b6e-81fc-1873329660b6"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "5a49b09b-8393-4d24-bf99-f0817067972b",
+          "author": "Mayra Patrícia Duarte Sofiano",
+          "year": 2015,
+          "pdf_pages": [1],
+          "evidence_notes": "A capa indica Maio de 2015, a autora e o tema da rede WiMax da TDM em Marracuene."
+        },
+        {
+          "pfc_id": "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "author": "Diana João Matsinhe",
+          "year": 2015,
+          "pdf_pages": [1],
+          "evidence_notes": "A capa indica Maio de 2015, a autora e o tema da rede híbrida fibra-wireless da TDM em Matola-Rio."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "O catálogo só tem estes dois registos indexados com ano 2015, e as capas confirmam o mês e o ano. O numeral 2015 noutras páginas não cria um terceiro PFC desse ano."
+    },
+    {
+      "id": "Q022",
+      "category": "metadata_constrained",
+      "question": "Qual é o projecto de Mércia Cecília David Fortes e em que ano foi apresentado?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Projecção de um sistema de antenas distribuídas para a cobertura interior da rede 3G da Vodacom no Edifício Platinum. Apresentação: Maio de 2018. Supervisão na capa: Eng. Nelson Mandava. Instituição: ISUTC.",
+        "primary_pfc_ids": ["cd669613-e54e-4b55-b452-4a3dd127ae2c"],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "cd669613-e54e-4b55-b452-4a3dd127ae2c",
+          "author": "Mércia Cecília David Fortes",
+          "year": 2018,
+          "pdf_pages": [1, 19],
+          "evidence_notes": "A capa identifica a autora, Maio de 2018 e o tema. A página 19 repete o objectivo de antenas distribuídas para a cobertura 3G no Edifício Platinum."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "A pergunta parte do nome da autora, que é metadado de catálogo e texto de capa, e pede o tema e o ano correspondentes."
+    },
+    {
+      "id": "Q023",
+      "category": "metadata_constrained",
+      "question": "Que projectos finais de curso deste arquivo foram realizados na Universidade Zambeze?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Nenhum. A pesquisa do texto dos 14 PDF legíveis não encontrou «Zambeze». As capas e o catálogo atribuem os projectos indexados ao Instituto Superior de Transportes e Comunicações.",
+        "primary_pfc_ids": [],
+        "secondary_pfc_ids": [],
+        "unsupported": true
+      },
+      "evidence": [],
+      "semantic_test": null,
+      "rationale": "Premissa institucional falsa. A ausência foi estabelecida por pesquisa integral da cadeia «zambeze» nos 14 PDF e pela instituição registada no catálogo. O PDF sem texto não foi usado como evidência."
+    },
+    {
+      "id": "Q024",
+      "category": "unsupported",
+      "question": "Qual é o valor das propinas da licenciatura no ISUTC?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "O corpus não indica valores de propinas. A pesquisa da cadeia «propina» nos 14 PDF legíveis não devolveu ocorrências.",
+        "primary_pfc_ids": [],
+        "secondary_pfc_ids": [],
+        "unsupported": true
+      },
+      "evidence": [],
+      "semantic_test": null,
+      "rationale": "Conhecimento administrativo alheio aos relatórios. Vários PFC são do ISUTC, mas nenhum estabelece o preço da propina."
+    },
+    {
+      "id": "Q025",
+      "category": "unsupported",
+      "question": "Que projectos finais de curso estudam a implantação de redes móveis de quinta geração em Moçambique?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Nenhum PFC do corpus estuda redes 5G. A pesquisa por «quinta geração» e pela sigla 5G como palavra não encontrou ocorrências nos 14 PDF. Há trabalhos sobre 3G e WiMax, que não são quinta geração.",
+        "primary_pfc_ids": [],
+        "secondary_pfc_ids": [],
+        "unsupported": true
+      },
+      "evidence": [],
+      "semantic_test": null,
+      "rationale": "Tema académico plausível e ausente. Ocorrências da sequência de caracteres 5g dentro de valores em GHz ou Gbps não foram contadas como estudo de redes 5G."
+    },
+    {
+      "id": "Q026",
+      "category": "unsupported",
+      "question": "Que projectos finais de curso de 2020 estão neste arquivo?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Nenhum. Os anos dos 14 PFC indexados são 2011, 2015, 2016, 2018, 2019, 2021, 2023, 2024 e 2025. O numeral 2020 aparece em citações, estatísticas e códigos de equipamento, não como ano de um projecto deste arquivo.",
+        "primary_pfc_ids": [],
+        "secondary_pfc_ids": [],
+        "unsupported": true
+      },
+      "evidence": [],
+      "semantic_test": null,
+      "rationale": "Premissa incorrecta sobre a colecção. O catálogo não tem registo indexado de 2020, e a leitura das ocorrências de «2020» no texto não identifica o ano de elaboração de nenhum destes PFC."
+    },
+    {
+      "id": "Q027",
+      "category": "cross_document",
+      "question": "Compare a videovigilância proposta para a Avenida 25 de Setembro com a proposta para o condomínio Belo-Horizonte: que espaço cada uma vigia e que meio ou ferramenta de projecto utiliza?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Belso vigia uma avenida pública e adopta videovigilância IP com fibra óptica. Óscar vigia um condomínio residencial, fundamenta o diagnóstico em entrevistas a seguranças e moradores, e simula o sistema com o IP Video System Design Tool versão 9.1. Os dois trabalhos dimensionam câmaras, mas o espaço e o meio de projecto diferem.",
+        "primary_pfc_ids": [
+          "a160046c-7797-4752-84f0-0acbefc6b3ec",
+          "ba1f6d93-b1a8-4d7c-8e20-9e5ca0ccba9b"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "a160046c-7797-4752-84f0-0acbefc6b3ec",
+          "author": "Belso Bento Langa",
+          "year": 2016,
+          "pdf_pages": [15, 18],
+          "evidence_notes": "Espaço: Avenida 25 de Setembro. Meio proposto: fibra óptica num sistema de videovigilância IP."
+        },
+        {
+          "pfc_id": "ba1f6d93-b1a8-4d7c-8e20-9e5ca0ccba9b",
+          "author": "Óscar Clovis Germano Guibunda",
+          "year": 2019,
+          "pdf_pages": [14, 16],
+          "evidence_notes": "Espaço: condomínio Belo-Horizonte. Ferramenta: IP Video System Design Tool 9.1, depois de entrevistas a seguranças e moradores."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Os dois PFC são comparáveis porque ambos dimensionam videovigilância e diferem no tipo de espaço e na forma de sustentar o dimensionamento."
+    },
+    {
+      "id": "Q028",
+      "category": "cross_document",
+      "question": "Compare as redes de acesso que Diana João Matsinhe e Mayra Patrícia Duarte Sofiano dimensionam para a TDM: que tecnologias usa cada uma e para que zona?",
+      "language": "pt",
+      "expected": {
+        "answer_notes": "Diana dimensiona uma rede híbrida fibra-wireless para Matola-Rio, com GPON na parte óptica e WiMax 802.16d na parte sem fios. Mayra dimensiona uma rede de acesso WiMax para banda larga no distrito de Marracuene e valida a cobertura com o simulador Radio Mobile. As duas servem a TDM, mas a arquitectura e a zona não são as mesmas.",
+        "primary_pfc_ids": [
+          "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "5a49b09b-8393-4d24-bf99-f0817067972b"
+        ],
+        "secondary_pfc_ids": [],
+        "unsupported": false
+      },
+      "evidence": [
+        {
+          "pfc_id": "ff1aeb14-9c42-4b6e-81fc-1873329660b6",
+          "author": "Diana João Matsinhe",
+          "year": 2015,
+          "pdf_pages": [12, 15],
+          "evidence_notes": "Zona: Matola-Rio. Tecnologias da solução: GPON e WiMax 802.16d numa arquitectura híbrida."
+        },
+        {
+          "pfc_id": "5a49b09b-8393-4d24-bf99-f0817067972b",
+          "author": "Mayra Patrícia Duarte Sofiano",
+          "year": 2015,
+          "pdf_pages": [16, 19],
+          "evidence_notes": "Zona: distrito de Marracuene. Tecnologia da solução: rede de acesso WiMax, com simulação no Radio Mobile."
+        }
+      ],
+      "semantic_test": null,
+      "rationale": "Comparação sustentada por dois dimensionamentos da mesma operadora, com tecnologias e geografias distintas e explicitadas nos resumos e nos objectivos."
+    }
+  ]
+}

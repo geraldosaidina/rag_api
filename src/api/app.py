@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncIterator
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from api.errors import register_exception_handlers
 from api.routes import ask, documents, health
@@ -68,6 +73,9 @@ def create_app(
     pfc_store: PfcStore | None = None,
     pfc_corpus_directory: str | None = None,
     initialize_rag: bool = True,
+    evaluation_log_path: str | None = None,
+    cors_origins: list[str] | None = None,
+    frontend_directory: str | None = None,
 ) -> FastAPI:
     """
     Create the FastAPI application.
@@ -93,9 +101,49 @@ def create_app(
     app.state.initialize_rag = initialize_rag and rag_service is None
     app.state.ready = rag_service is not None
     app.state.init_error = None
+    app.state.evaluation_log_path = evaluation_log_path
+
+    origins = cors_origins if cors_origins is not None else _cors_origins_from_env()
+    if origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["Content-Type"],
+        )
 
     register_exception_handlers(app)
     app.include_router(health.router)
     app.include_router(ask.router)
     app.include_router(documents.router)
+    _mount_frontend(app, frontend_directory)
     return app
+
+
+def _cors_origins_from_env() -> list[str]:
+    raw = os.getenv("CORS_ORIGINS", "")
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
+def _mount_frontend(app: FastAPI, frontend_directory: str | None) -> None:
+    directory = (
+        Path(frontend_directory)
+        if frontend_directory
+        else Path(__file__).resolve().parents[2] / "frontend"
+    )
+    index = directory / "index.html"
+    library = directory / "biblioteca.html"
+    assets = directory / "assets"
+    if not index.is_file() or not library.is_file() or not assets.is_dir():
+        logger.info("Student frontend was not mounted because files are missing.")
+        return
+
+    @app.get("/", include_in_schema=False)
+    def assistant_page() -> FileResponse:
+        return FileResponse(index)
+
+    @app.get("/biblioteca", include_in_schema=False)
+    def library_page() -> FileResponse:
+        return FileResponse(library)
+
+    app.mount("/assets", StaticFiles(directory=assets), name="frontend-assets")

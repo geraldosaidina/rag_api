@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Biblioteca de PFCs</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Arquivo PFC</a>
+      <nav aria-label="Secções">
+        <a href="/">Assistente</a>
+        <a href="/biblioteca" aria-current="page">Biblioteca</a>
+      </nav>
+    </header>
+    <main class="wide">
+      <section class="intro">
+        <h1>Biblioteca de PFCs</h1>
+        <p>Consulte os projectos indexados e abra o PDF original.</p>
+      </section>
+      <form class="filters" role="search">
+        <label for="catalogue-search">Pesquisar na biblioteca</label>
+        <input
+          id="catalogue-search"
+          type="search"
+          placeholder="Título, autor, curso ou ano"
+          autocomplete="off"
+        />
+        <label for="year-filter">Ano</label>
+        <select id="year-filter">
+          <option value="">Todos os anos</option>
+        </select>
+      </form>
+      <p id="catalogue-error" class="error" role="alert" hidden>
+        Não foi possível carregar a biblioteca neste momento.
+      </p>
+      <article id="detail" class="detail" hidden>
+        <h2 id="detail-title"></h2>
+        <p id="detail-authors" class="meta"></p>
+        <dl id="detail-facts"></dl>
+        <a id="open-pfc" href="#" target="_blank" rel="noopener">Abrir PFC</a>
+      </article>
+      <p id="catalogue-empty" class="muted" hidden>Nenhum PFC corresponde à pesquisa.</p>
+      <ul id="catalogue" class="catalogue"></ul>
+    </main>
+    <script type="module" src="/assets/library.mjs"></script>
+  </body>
+</html>

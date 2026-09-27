@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -11,7 +12,12 @@ if str(PROJECT_SRC) not in sys.path:
 
 from api.app import create_app
 
-app = create_app()
+app = create_app(
+    evaluation_log_path=os.getenv(
+        "EVALUATION_LOG_PATH",
+        "data/evaluation/interactions.jsonl",
+    ),
+)
 
 
 def main() -> None:
@@ -19,8 +25,8 @@ def main() -> None:
 
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
-        port=8000,
+        host=os.getenv("API_HOST", "127.0.0.1"),
+        port=int(os.getenv("API_PORT", "8000")),
         reload=False,
     )
 
