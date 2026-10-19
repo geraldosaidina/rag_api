@@ -39,6 +39,20 @@ class AnswerDiagnostics:
 
 
 @dataclass(frozen=True)
+class EvidenceTraceItem:
+    """Exact evidence fragment supplied to generation (evaluation / offline use)."""
+
+    citation_id: str
+    content: str
+    source: str
+    page: int | str | None
+    chunk_index: int | str | None
+    chunk_id: str | None
+    excerpt: str
+    pfc_id: str | None = None
+
+
+@dataclass(frozen=True)
 class AnswerResult:
     """Structured application response returned by RAGService.answer()."""
 
@@ -46,3 +60,7 @@ class AnswerResult:
     answer: str
     sources: tuple[SourceReference, ...]
     diagnostics: AnswerDiagnostics
+    # Optional trace for offline evaluation. Not mapped to the student HTTP API.
+    evidence_context_text: str | None = None
+    evidence_items: tuple[EvidenceTraceItem, ...] = ()
+    raw_answer_before_citation_cleanup: str | None = None

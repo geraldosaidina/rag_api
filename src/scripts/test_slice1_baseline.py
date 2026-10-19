@@ -120,12 +120,20 @@ def test_acronym_expansion_only_when_present() -> None:
     _assert("internet of things" not in joined_without, "Must not invent IoT from networks.")
 
 
+def test_enabled_false_disables_all_rewrites() -> None:
+    rewriter = QueryRewriter(config=QueryRewriteConfig(enabled=False, use_llm=True))
+    result = rewriter.rewrite("Que PFCs existem sobre IoT?")
+    _assert(result.rewritten_queries == ["Que PFCs existem sobre IoT?"], "No rewrites.")
+    _assert(result.used_llm is False, "LLM path must stay off when enabled=False.")
+
+
 def main() -> int:
     test_production_sources_are_topic_neutral()
     test_intent_matrix()
     test_hybrid_answerability_is_generic()
     test_original_query_always_present()
     test_acronym_expansion_only_when_present()
+    test_enabled_false_disables_all_rewrites()
     print("Slice 1 baseline regression checks passed.")
     return 0
 

@@ -13,11 +13,17 @@ from rag.context.evidence_assembler import (
     EvidenceAssembler,
     EvidenceAssemblerConfig,
     EvidenceDocument,
+    EvidencePack,
 )
 from rag.generation.answer_generator import AnswerGenerator, GenerationException
 from rag.retrieval.hybrid_retriever import HybridRetriever, HybridRetrieverException
 from rag.rerank.reranker import CrossEncoderReranker, RerankResult, RerankerException
-from rag.service.models import AnswerDiagnostics, AnswerResult, SourceReference
+from rag.service.models import (
+    AnswerDiagnostics,
+    AnswerResult,
+    EvidenceTraceItem,
+    SourceReference,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +165,9 @@ class RAGService:
                 insufficient_evidence=False,
                 invalid_citations_removed=citation_result.invalid_citations,
             ),
+            evidence_context_text=evidence.context_text,
+            evidence_items=_trace_items(evidence),
+            raw_answer_before_citation_cleanup=raw_answer,
         )
 
     def _catalogue_records(self, ranked: list[RerankResult]) -> dict[str, PfcRecord]:
@@ -208,6 +217,25 @@ class RAGService:
                 insufficient_evidence=True,
             ),
         )
+
+
+def _trace_items(evidence: EvidencePack) -> tuple[EvidenceTraceItem, ...]:
+    items: list[EvidenceTraceItem] = []
+    for item in evidence.items:
+        raw_pfc = (item.metadata or {}).get("pfc_id")
+        items.append(
+            EvidenceTraceItem(
+                citation_id=item.citation_id,
+                content=item.content,
+                source=item.source,
+                page=item.page,
+                chunk_index=item.chunk_index,
+                chunk_id=item.chunk_id,
+                excerpt=item.excerpt,
+                pfc_id=str(raw_pfc) if raw_pfc else None,
+            )
+        )
+    return tuple(items)
 
 
 def _evidence_documents(records: dict[str, PfcRecord]) -> dict[str, EvidenceDocument] | None:

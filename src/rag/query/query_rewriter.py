@@ -75,6 +75,21 @@ class QueryRewriter:
 
         original_query = query.strip()
         intent = detect_query_intent(original_query)
+
+        # enabled=False disables every rewrite path (rules and LLM).
+        # Production defaults keep enabled=True; RAG_USE_LLM_REWRITE only
+        # toggles use_llm, so rule-based expansion remains available there.
+        if not self.config.enabled:
+            return QueryRewriteResult(
+                original_query=original_query,
+                intent=intent,
+                rewritten_queries=[original_query],
+                used_llm=False,
+                rejected_llm_queries=[],
+                llm_error=None,
+                rewrite_sources={original_query: "original"},
+            )
+
         rule_rewrites = self._rule_based_rewrites(original_query, intent)
 
         llm_rewrites: list[str] = []
@@ -82,7 +97,7 @@ class QueryRewriter:
         llm_error: str | None = None
         used_llm = False
 
-        if self.config.enabled and self.config.use_llm and self.llm_client is not None:
+        if self.config.use_llm and self.llm_client is not None:
             llm_rewrites, rejected_llm_queries, llm_error = self._llm_rewrites(
                 original_query,
                 intent,

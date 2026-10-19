@@ -15,4 +15,5 @@ data/raw_pdfs/
 data/pfc.db
 data/corpus/
 data/evaluation/
+evaluation/results/
 .cursor/

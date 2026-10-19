@@ -13,6 +13,8 @@ from rag.vector.chroma_store import ChromaVectorStore, SearchResult
 
 logger = logging.getLogger(__name__)
 
+RETRIEVAL_MODES = frozenset({"hybrid", "dense", "bm25"})
+
 
 @dataclass(frozen=True)
 class HybridCandidate:
@@ -41,26 +43,44 @@ class HybridRetriever:
         self._documents = self._load_documents_from_chroma()
         self._bm25_index = Bm25DocumentIndex(self._documents)
 
-    def retrieve(self, query: str, candidate_k: int) -> list[SearchResult]:
+    def retrieve(
+        self,
+        query: str,
+        candidate_k: int,
+        *,
+        retrieval_mode: str = "hybrid",
+    ) -> list[SearchResult]:
         if not query or not query.strip():
             raise HybridRetrieverException("Cannot retrieve with an empty query.")
         if candidate_k <= 0:
             raise HybridRetrieverException(
                 "Hybrid retrieval parameter 'candidate_k' must be greater than zero."
             )
+        mode = (retrieval_mode or "hybrid").strip().lower()
+        if mode not in RETRIEVAL_MODES:
+            raise HybridRetrieverException(
+                f"Unknown retrieval_mode {retrieval_mode!r}. "
+                f"Expected one of: {sorted(RETRIEVAL_MODES)}."
+            )
 
         rewritten_queries, intent, used_llm, rejected, llm_error, sources = (
             self._prepare_queries(query)
         )
-        dense_weight, sparse_weight = self._get_weights_for_intent(intent)
+        dense_weight, sparse_weight = self._weights_for_mode(mode, intent)
         global_best: dict[str, HybridCandidate] = {}
 
         for retrieval_query in rewritten_queries:
-            merged = self._merge_results(
-                dense_results=self.vector_store.similarity_search_with_scores(
+            dense_results: list[SearchResult] = []
+            sparse_results: list[dict[str, Any]] = []
+            if mode in {"hybrid", "dense"}:
+                dense_results = self.vector_store.similarity_search_with_scores(
                     query=retrieval_query, k=candidate_k
-                ),
-                sparse_results=self._bm25_index.top_k(retrieval_query, candidate_k),
+                )
+            if mode in {"hybrid", "bm25"}:
+                sparse_results = self._bm25_index.top_k(retrieval_query, candidate_k)
+            merged = self._merge_results(
+                dense_results=dense_results,
+                sparse_results=sparse_results,
                 dense_weight=dense_weight,
                 sparse_weight=sparse_weight,
                 retrieval_intent=intent,
@@ -85,9 +105,18 @@ class HybridRetriever:
                 rejected=rejected,
                 llm_error=llm_error,
                 sources=sources,
+                retrieval_mode=mode,
             )
             for candidate in ranked[:candidate_k]
         ]
+
+    def _weights_for_mode(self, mode: str, intent: str) -> tuple[float, float]:
+        """Resolve dense/sparse weights. Default hybrid path is unchanged."""
+        if mode == "dense":
+            return 1.0, 0.0
+        if mode == "bm25":
+            return 0.0, 1.0
+        return self._get_weights_for_intent(intent)
 
     def _to_search_result(
         self,
@@ -100,6 +129,7 @@ class HybridRetriever:
         rejected: list[str],
         llm_error: str | None,
         sources: dict[str, str],
+        retrieval_mode: str = "hybrid",
     ) -> SearchResult:
         matched = candidate.metadata.get("matched_query", query)
         return SearchResult(
@@ -111,6 +141,7 @@ class HybridRetriever:
                 "answerability_boost": candidate.answerability_boost,
                 "combined_score": candidate.combined_score,
                 "retrieval_intent": intent,
+                "retrieval_mode": retrieval_mode,
                 "rewritten_queries": rewritten_queries,
                 "matched_query": matched,
                 "original_query": query,
