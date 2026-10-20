@@ -17,3 +17,5 @@ data/corpus/
 data/evaluation/
 evaluation/results/
 .cursor/
+data/pfc_samples/
+screenshots/

@@ -49,6 +49,31 @@ uv run python src/scripts/test_slice1_baseline.py
 - Queries with `unsupported=true` are excluded from macro averages of Precision@5, Recall@5, Recall@10, and MRR; their rankings are still stored.
 - Relevance is binary and document-level, not graded and not chunk-level.
 
+## Phase 2 — generation and references (B1)
+
+Production stack only: hybrid + rules_llm + rerank + generation.
+
+```bash
+uv run python evaluation/run_generation_benchmark.py
+uv run python evaluation/run_generation_benchmark.py --skip-llm-judge
+uv run python src/scripts/test_benchmark_phase2.py
+```
+
+Outputs under `results/runs/<run_id>/`:
+
+| File | Content |
+|------|---------|
+| `generation.jsonl` | Question, answer, evidence pack, sources, timings, automatic citation metrics |
+| `judgments.jsonl` | LLM-as-judge scores, prompts metadata, human-review flags |
+| `summary.json` | Macro averages (supported vs unsupported separated) |
+| `run_manifest.json` | Models, corpus id, judge protocol reference |
+
+Judging protocol: `judging/protocol.md`.
+
+`answer_notes` in gold are judge hints only, never canonical answers.
+
 ## Production chatbot
 
 The student API and frontend are unchanged. `HybridRetriever.retrieve` defaults to `retrieval_mode="hybrid"`. `RAGService` does not pass `retrieval_mode`. Production rewrite still uses `enabled=True` with `use_llm` controlled by `RAG_USE_LLM_REWRITE`.
+
+`AnswerResult` may carry optional evidence traces for offline evaluation; `api.mapping.to_ask_response` does not expose them to students.

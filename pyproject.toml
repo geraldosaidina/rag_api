@@ -18,3 +18,9 @@ dependencies = [
     "sentence-transformers>=5.4.1",
     "uvicorn>=0.46.0",
 ]
+
+[dependency-groups]
+analysis = [
+    "matplotlib>=3.9",
+    "openpyxl>=3.1",
+]
